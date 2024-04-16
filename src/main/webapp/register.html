@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="js/vue.js"></script>
+    <script src="js/axios-0.18.0.js"></script>
+    <script src="element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+
+    <style>
+        body {
+            background: url(./img/star.jpg) ;
+            /*尺寸*/
+            background-size: cover;
+
+        }
+        /*标*/
+        #logo{
+            /*尺寸*/
+            font-size: 25px;
+            font-weight: 800;
+            /*全部大写*/
+            text-transform: uppercase;
+            color: #fff;
+            position: absolute;
+            /*定位*/
+            top: 15%;
+            left: 85%;
+            transform: translate(-50%, -50%);
+        }
+
+        /*框框*/
+        #register{
+
+            /*定位*/
+            position: absolute;
+            top: 28%;
+            left: 38%;
+
+        }
+
+        .box-card{
+            /*尺寸*/
+            width: 500px;
+            height: 400px;
+            background-color: rgba(255,255,255,0.382);
+        }
+        #form{
+            line-height: 60px;
+            padding-left: 15px;
+            padding-right: 15px;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+<div id="background">
+    <div id="logo">MySystem</div>
+
+    <div id="register">
+        <el-card class="box-card">
+            <el-form id="form" v-model="user">
+
+                <el-form-item label="用户名:">
+                    <el-input v-model.trim="user.username" placeholder="请输入用户名" clearable round style="width:300px"></el-input>
+                </el-form-item>
+
+                <el-form-item label="密码:">
+                    <el-input type="password" v-model.trim="user.password" placeholder="请输入密码"  clearable round style="width:300px"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码:">
+                    <el-input type="password" v-model="user.checkPass" style="width:300px" placeholder="请再次输入密码"  clearable round></el-input>
+                </el-form-item>
+
+                <el-form-item>
+                    <template>
+                        <el-button type="primary" @click="submitForm()" round>注册</el-button>
+                    </template>
+                </el-form-item>
+<!--                        <el-button @click="resetForm(user)" round>重置</el-button>-->
+                <div>
+                    已有账号?=>
+                    <el-link  href="http://localhost:8080/QG_war_exploded/login.html">登录</el-link>
+                </div>
+            </el-form>
+        </el-card>
+    </div>
+</div>
+
+    <script>
+        new Vue({
+            el:"#register",
+            data: {
+
+
+                user: {
+                    username: "",
+                    password: "",
+                    checkPass:""
+                },
+
+            },
+            methods:{
+              submitForm(){
+
+                      if (this.user.username === '' || this.user.password === '') {
+                          alert('账号或密码不能为空');
+                          return;
+                      }
+                      if (this.user.username.length>20 || this.user.password.length>20){
+                          alert('账号或密码长度不能超过20');
+                          return;
+                      }
+                      if(this.user.password!==this.user.checkPass){
+                          alert('两次输入的密码不一致');
+                          return;
+                      }
+                    // axios.get("http://localhost:8080/QG_war_exploded/"+"user/register"+"?username="+this.user.username+"&password="+this.user.password).
+                    //     then(response=>{
+                    //
+                    //         if(response.data.code===200){
+                    //             alert('注册成功');
+                    //             window.location.href="http://localhost:8080/QG_war_exploded/login.html";
+                    //         }else if (response.data.code===402){
+                    //             alert('用户已存在');
+                    //         }
+                    //     })
+                    //     .catch(function (error) { // 请求失败处理
+                    //         alert('异常返回数据,注册失败');
+                    //         console.log(error);
+                    // })
+                  axios({
+                      method:"post",
+                      url:"http://localhost:8080/QG_war_exploded/user/register",
+                      data:this.user,
+                  }).then(resp=>{
+                      if(resp.data.code===200){
+                          alert('注册成功');
+                          window.location.href="http://localhost:8080/QG_war_exploded/login.html";
+                      }else if (resp.data.code===402){
+                          alert('用户已存在');
+                      }
+                  })
+              }
+            }
+        })
+    </script>
+
+
+
+</body>
+</html>
