@@ -3,11 +3,11 @@
 exports.__esModule = true;
 exports.validateRangeInOneMonth = exports.extractTimeFormat = exports.extractDateFormat = exports.nextYear = exports.prevYear = exports.nextMonth = exports.prevMonth = exports.changeYearMonthAndClampDate = exports.timeWithinRange = exports.limitTimeRange = exports.clearMilliseconds = exports.clearTime = exports.modifyWithTimeString = exports.modifyTime = exports.modifyDate = exports.range = exports.getRangeMinutes = exports.getMonthDays = exports.getPrevMonthLastDays = exports.getRangeHours = exports.getWeekNumber = exports.getStartDateOfMonth = exports.nextDate = exports.prevDate = exports.getFirstDayOfMonth = exports.getDayCountOfYear = exports.getDayCountOfMonth = exports.parseDate = exports.formatDate = exports.isDateObject = exports.isDate = exports.toDate = exports.getI18nSettings = undefined;
 
-var _date = require('element-ui/lib/utils/date');
+var _date = require('main/webapp/element-ui/lib/utils/date');
 
 var _date2 = _interopRequireDefault(_date);
 
-var _locale = require('element-ui/lib/locale');
+var _locale = require('main/webapp/element-ui/lib/locale');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -66,19 +66,9 @@ var parseDate = exports.parseDate = function parseDate(string, format) {
 };
 
 var getDayCountOfMonth = exports.getDayCountOfMonth = function getDayCountOfMonth(year, month) {
-  if (month === 3 || month === 5 || month === 8 || month === 10) {
-    return 30;
-  }
+  if (isNaN(+month)) return 31;
 
-  if (month === 1) {
-    if (year % 4 === 0 && year % 100 !== 0 || year % 400 === 0) {
-      return 29;
-    } else {
-      return 28;
-    }
-  }
-
-  return 31;
+  return new Date(year, +month + 1, 0).getDate();
 };
 
 var getDayCountOfYear = exports.getDayCountOfYear = function getDayCountOfYear(year) {

@@ -46,9 +46,9 @@
   </div>
 </template>
 <script>
-  import ElInput from 'element-ui/packages/input';
-  import Focus from 'element-ui/src/mixins/focus';
-  import RepeatClick from 'element-ui/src/directives/repeat-click';
+  import ElInput from 'main/webapp/element-ui/packages/input';
+  import Focus from 'main/webapp/element-ui/src/mixins/focus';
+  import RepeatClick from 'main/webapp/element-ui/src/directives/repeat-click';
 
   export default {
     name: 'ElInputNumber',
@@ -168,7 +168,7 @@
         return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
       },
       inputNumberDisabled() {
-        return this.disabled || (this.elForm || {}).disabled;
+        return this.disabled || !!(this.elForm || {}).disabled;
       },
       displayValue() {
         if (this.userInput !== null) {

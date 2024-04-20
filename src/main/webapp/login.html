@@ -58,14 +58,14 @@
 </head>
 <body>
     <div id="background">
-        <div id="logo">MySystem</div>
+        <div id="logo">资金管理系统</div>
 
         <div id="login">
             <el-card class="box-card">
-                <el-form id="form" v-model="user">
+                <el-form id="form" v-model="loginUser">
 
-                    <el-input  v-model.trim="user.username" minlength="1" placeholder="请输入账号"></el-input>
-                    <el-input placeholder="请输入密码" minlength="1" v-model.trim="user.password" showassword></el-input>
+                    <el-input  v-model.trim="loginUser.username" minlength="1" placeholder="请输入账号"></el-input>
+                    <el-input placeholder="请输入密码" minlength="1" v-model.trim="loginUser.password" showassword></el-input>
                     <el-button type="primary" @click="submitForm" round>登录</el-button>
                     <el-button type="primary"  @click="toregister" round>注册</el-button>
 
@@ -80,7 +80,7 @@
         el:"#login",
 
         data: {
-            user: {
+            loginUser: {
                 username: '',
                 password: '',
             },
@@ -92,11 +92,11 @@
                 window.location.href="http://localhost:8080/QG_war_exploded/register.html"
             },
             submitForm() {
-                if (this.user.username === '' || this.user.password === '') {
+                if (this.loginUser.username === '' || this.loginUser.password === '') {
                     alert('账号或密码不能为空');
                     return;
                 }
-                if (this.user.username.length>20 || this.user.password.length>20){
+                if (this.loginUser.username.length>20 || this.loginUser.password.length>20){
                     alert('账号或密码长度不能超过20');
                     return;
                 }
@@ -116,11 +116,11 @@
                 axios({
                     method:"post",
                     url:"http://localhost:8080/QG_war_exploded/user/login",
-                    data:this.user,
+                    data:this.loginUser,
                 }).then(resp=>{
                     if(resp.data.code===200) {
                         alert("登录成功");
-                        window.location.href = "http://localhost:8080/QG_war_exploded/index.html";
+                        window.location.href = "user.html";
                     }
                     else {
                         alert("账号或密码错误");

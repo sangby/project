@@ -7,7 +7,7 @@
   </form>
 </template>
 <script>
-  import objectAssign from 'element-ui/src/utils/merge';
+  import objectAssign from 'main/webapp/element-ui/src/utils/merge';
 
   export default {
     name: 'ElForm',
@@ -116,8 +116,8 @@
         // if no callback, return promise
         if (typeof callback !== 'function' && window.Promise) {
           promise = new window.Promise((resolve, reject) => {
-            callback = function(valid) {
-              valid ? resolve(valid) : reject(valid);
+            callback = function(valid, invalidFields) {
+              valid ? resolve(valid) : reject(invalidFields);
             };
           });
         }

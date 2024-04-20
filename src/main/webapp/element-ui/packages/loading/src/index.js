@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import loadingVue from './loading.vue';
-import { addClass, removeClass, getStyle } from 'element-ui/src/utils/dom';
-import { PopupManager } from 'element-ui/src/utils/popup';
-import afterLeave from 'element-ui/src/utils/after-leave';
-import merge from 'element-ui/src/utils/merge';
+import { addClass, removeClass, getStyle } from 'main/webapp/element-ui/src/utils/dom';
+import { PopupManager } from 'main/webapp/element-ui/src/utils/popup';
+import afterLeave from 'main/webapp/element-ui/src/utils/after-leave';
+import merge from 'main/webapp/element-ui/src/utils/merge';
 
 const LoadingConstructor = Vue.extend(loadingVue);
 
@@ -87,7 +87,7 @@ const Loading = (options = {}) => {
   });
 
   addStyle(options, parent, instance);
-  if (instance.originalPosition !== 'absolute' && instance.originalPosition !== 'fixed') {
+  if (instance.originalPosition !== 'absolute' && instance.originalPosition !== 'fixed' && instance.originalPosition !== 'sticky') {
     addClass(parent, 'el-loading-parent--relative');
   }
   if (options.fullscreen && options.lock) {

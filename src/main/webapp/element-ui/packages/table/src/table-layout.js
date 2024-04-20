@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import scrollbarWidth from 'element-ui/src/utils/scrollbar-width';
+import scrollbarWidth from 'main/webapp/element-ui/src/utils/scrollbar-width';
 import { parseHeight } from './util';
 
 class TableLayout {
@@ -113,7 +113,6 @@ class TableLayout {
 
     const noData = !(this.store.states.data && this.store.states.data.length);
     this.viewportHeight = this.scrollX ? tableHeight - (noData ? 0 : this.gutterWidth) : tableHeight;
-
     this.updateScrollY();
     this.notifyObservers('scrollable');
   }

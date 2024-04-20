@@ -1,6 +1,6 @@
 <script>
-import fecha from 'element-ui/src/utils/date';
-import { range as rangeArr, getFirstDayOfMonth, getPrevMonthLastDays, getMonthDays, getI18nSettings, validateRangeInOneMonth } from 'element-ui/src/utils/date-util';
+import fecha from 'main/webapp/element-ui/src/utils/date';
+import { range as rangeArr, getFirstDayOfMonth, getPrevMonthLastDays, getMonthDays, getI18nSettings, validateRangeInOneMonth } from 'main/webapp/element-ui/src/utils/date-util';
 
 export default {
   props: {
@@ -19,12 +19,6 @@ export default {
   },
 
   inject: ['elCalendar'],
-
-  data() {
-    return {
-      WEEK_DAYS: getI18nSettings().dayNames
-    };
-  },
 
   methods: {
     toNestedArr(days) {
@@ -83,6 +77,9 @@ export default {
   },
 
   computed: {
+    WEEK_DAYS() {
+      return getI18nSettings().dayNames;
+    },
     prevMonthDatePrefix() {
       const temp = new Date(this.date.getTime());
       temp.setDate(0);
@@ -127,7 +124,8 @@ export default {
         let firstDay = getFirstDayOfMonth(date);
         firstDay = firstDay === 0 ? 7 : firstDay;
         const firstDayOfWeek = typeof this.firstDayOfWeek === 'number' ? this.firstDayOfWeek : 1;
-        const prevMonthDays = getPrevMonthLastDays(date, firstDay - firstDayOfWeek).map(day => ({
+        const offset = (7 + firstDay - firstDayOfWeek) % 7;
+        const prevMonthDays = getPrevMonthLastDays(date, offset).map(day => ({
           text: day,
           type: 'prev'
         }));

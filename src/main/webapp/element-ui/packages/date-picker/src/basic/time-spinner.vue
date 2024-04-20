@@ -101,9 +101,9 @@
 </template>
 
 <script type="text/babel">
-  import { getRangeHours, getRangeMinutes, modifyTime } from 'element-ui/src/utils/date-util';
-  import ElScrollbar from 'element-ui/packages/scrollbar';
-  import RepeatClick from 'element-ui/src/directives/repeat-click';
+  import { getRangeHours, getRangeMinutes, modifyTime } from 'main/webapp/element-ui/src/utils/date-util';
+  import ElScrollbar from 'main/webapp/element-ui/packages/scrollbar';
+  import RepeatClick from 'main/webapp/element-ui/src/directives/repeat-click';
 
   export default {
     components: { ElScrollbar },
@@ -218,16 +218,16 @@
       },
 
       bindScrollEvent() {
-        const bindFuntion = (type) => {
+        const bindFunction = (type) => {
           this.$refs[type].wrap.onscroll = (e) => {
             // TODO: scroll is emitted when set scrollTop programatically
             // should find better solutions in the future!
             this.handleScroll(type, e);
           };
         };
-        bindFuntion('hours');
-        bindFuntion('minutes');
-        bindFuntion('seconds');
+        bindFunction('hours');
+        bindFunction('minutes');
+        bindFunction('seconds');
       },
 
       handleScroll(type) {

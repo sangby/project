@@ -2,7 +2,7 @@
 
 exports.__esModule = true;
 
-var _locale = require('element-ui/lib/locale');
+var _locale = require('main/webapp/element-ui/lib/locale');
 
 exports.default = {
   methods: {

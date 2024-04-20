@@ -34,6 +34,7 @@
         :name="name"
         :disabled="isDisabled"
         tabindex="-1"
+        autocomplete="off"
       >
     </span>
     <span class="el-radio__label" @keydown.stop>
@@ -43,7 +44,7 @@
   </label>
 </template>
 <script>
-  import Emitter from 'element-ui/src/mixins/emitter';
+  import Emitter from 'main/webapp/element-ui/src/mixins/emitter';
 
   export default {
     name: 'ElRadio',

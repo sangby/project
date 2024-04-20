@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 54);
+/******/ 	return __webpack_require__(__webpack_require__.s = 55);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -192,39 +192,39 @@ function normalizeComponent (
 /***/ 10:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/input");
+module.exports = require("main/webapp/element-ui/lib/input");
 
 /***/ }),
 
 /***/ 12:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/utils/clickoutside");
+module.exports = require("main/webapp/element-ui/lib/utils/clickoutside");
 
 /***/ }),
 
-/***/ 13:
+/***/ 14:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/button");
+module.exports = require("main/webapp/element-ui/lib/button");
 
 /***/ }),
 
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/mixins/emitter");
+module.exports = require("main/webapp/element-ui/lib/mixins/emitter");
 
 /***/ }),
 
 /***/ 5:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/utils/vue-popper");
+module.exports = require("main/webapp/element-ui/lib/utils/vue-popper");
 
 /***/ }),
 
-/***/ 54:
+/***/ 55:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -601,7 +601,7 @@ var Color = function () {
       }
     } else if (value.indexOf('#') !== -1) {
       var hex = value.replace('#', '').trim();
-      if (!/^(?:[0-9a-fA-F]{3}){1,2}$/.test(hex)) return;
+      if (!/^(?:[0-9a-fA-F]{3}){1,2}|[0-9a-fA-F]{8}$/.test(hex)) return;
       var r = void 0,
           g = void 0,
           b = void 0;
@@ -1548,7 +1548,7 @@ var input_ = __webpack_require__(10);
 var input_default = /*#__PURE__*/__webpack_require__.n(input_);
 
 // EXTERNAL MODULE: external "element-ui/lib/button"
-var button_ = __webpack_require__(13);
+var button_ = __webpack_require__(14);
 var button_default = /*#__PURE__*/__webpack_require__.n(button_);
 
 // CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib??vue-loader-options!./packages/color-picker/src/components/picker-dropdown.vue?vue&type=script&lang=js&
@@ -1943,7 +1943,7 @@ main.install = function (Vue) {
 /***/ 6:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/mixins/locale");
+module.exports = require("main/webapp/element-ui/lib/mixins/locale");
 
 /***/ }),
 

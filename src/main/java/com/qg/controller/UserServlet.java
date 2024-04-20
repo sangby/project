@@ -3,8 +3,10 @@ package com.qg.controller;
 import com.alibaba.fastjson.JSON;
 import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
+import com.qg.constant.ResultEnum;
 import com.qg.po.User;
 import com.qg.service.UserService;
+import com.qg.service.impl.UserServiceImpl;
 import com.qg.util.JsonUtil;
 import com.qg.util.Md5Util;
 import com.qg.util.impl.PoolUtil;
@@ -60,11 +62,11 @@ public class UserServlet extends BaseServlet {
             throw new RuntimeException(e);
         }
 
+        //保存用户名到session,多次赋值同一个键会覆盖
+            HttpSession session = req.getSession();
+            session.setAttribute("userName", user.getUserName());
+
         //封装为json对象,返回前端后,通过code判断登录情况
-        HttpSession session = req.getSession();
-
-        session.setAttribute("username",user.getUserName());
-
         JsonUtil.toJson(userResult,resp);
 
 
@@ -102,6 +104,30 @@ public class UserServlet extends BaseServlet {
         JsonUtil.toJson(registerResult,resp);
     }
 
+    /**
+     * 获取用户表的所有信息
+     *
+     * @param req  请求
+     * @param resp 响应
+     */
+
+    public void getUser(HttpServletRequest req, HttpServletResponse resp){
+
+        HttpSession session = req.getSession(false);
+        Object userName = session.getAttribute("userName");
+
+        UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+        Result<User> initResult = userServiceSingleton.loginInit(userName.toString());
+
+        JsonUtil.toJson(initResult,resp);
+
+    }
+
+    public void logout(HttpServletRequest req, HttpServletResponse resp){
+        //销毁session
+        HttpSession session = req.getSession(false);
+        session.invalidate();
+    }
 
     /**
      * 初始化普通用户主页面
@@ -145,7 +171,9 @@ public class UserServlet extends BaseServlet {
      * @param response 响应
      */
 
-    public void updatePersonInfo(HttpServletRequest request,HttpServletResponse response){
+    public void updatePersonInfo(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        BufferedReader reader = request.getReader();
+
 
     }
 

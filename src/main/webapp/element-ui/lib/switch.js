@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 88);
+/******/ 	return __webpack_require__(__webpack_require__.s = 94);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -192,25 +192,25 @@ function normalizeComponent (
 /***/ 11:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/mixins/migrating");
+module.exports = require("main/webapp/element-ui/lib/mixins/migrating");
 
 /***/ }),
 
 /***/ 22:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/mixins/focus");
+module.exports = require("main/webapp/element-ui/lib/mixins/focus");
 
 /***/ }),
 
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/mixins/emitter");
+module.exports = require("main/webapp/element-ui/lib/mixins/emitter");
 
 /***/ }),
 
-/***/ 88:
+/***/ 94:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -473,7 +473,9 @@ var migrating_default = /*#__PURE__*/__webpack_require__.n(migrating_);
       this.$nextTick(function () {
         // set input's checked property
         // in case parent refuses to change component's value
-        _this.$refs.input.checked = _this.checked;
+        if (_this.$refs.input) {
+          _this.$refs.input.checked = _this.checked;
+        }
       });
     },
     setBackgroundColor: function setBackgroundColor() {

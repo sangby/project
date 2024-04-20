@@ -11,7 +11,7 @@ public class User {
     /**
      * 身份id
      */
-    private Integer uid;
+    private Integer id;
     /**
      * 用户名
      */
@@ -43,7 +43,6 @@ public class User {
     /**
      * 在线
      */
-    private Boolean onLine;
 
 
 
@@ -51,22 +50,28 @@ public class User {
     public User() {
     }
 
-    public User(Integer id, String userName, String passWord) {
-        this.uid = id;
-        this.userName = userName;
-        this.passWord = passWord;
-    }
-
     public Integer getId() {
-        return uid;
+        return id;
     }
 
-    public Integer getUid() {
-        return uid;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setUid(Integer uid) {
-        this.uid = uid;
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPassWord() {
+        return passWord;
+    }
+
+    public void setPassWord(String passWord) {
+        this.passWord = passWord;
     }
 
     public String getPhone() {
@@ -109,16 +114,8 @@ public class User {
         this.signature = signature;
     }
 
-    public Boolean getOnLine() {
-        return onLine;
-    }
-
-    public void setOnLine(Boolean onLine) {
-        this.onLine = onLine;
-    }
-
-    public User(Integer uid, String userName, String passWord, String phone, Boolean block, Integer money, String headPhoto, String signature, Boolean onLine) {
-        this.uid = uid;
+    public User(Integer id, String userName, String passWord, String phone, Boolean block, Integer money, String headPhoto, String signature) {
+        this.id = id;
         this.userName = userName;
         this.passWord = passWord;
         this.phone = phone;
@@ -126,26 +123,11 @@ public class User {
         this.money = money;
         this.headPhoto = headPhoto;
         this.signature = signature;
-        this.onLine = onLine;
     }
 
-    public void setId(Integer id) {
-        this.uid = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
+    public User(Integer id, String userName, String passWord) {
+        this.id = id;
         this.userName = userName;
-    }
-
-    public String getPassWord() {
-        return passWord;
-    }
-
-    public void setPassWord(String passWord) {
         this.passWord = passWord;
     }
 }

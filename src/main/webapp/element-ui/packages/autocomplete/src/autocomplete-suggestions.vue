@@ -18,9 +18,9 @@
   </transition>
 </template>
 <script>
-  import Popper from 'element-ui/src/utils/vue-popper';
-  import Emitter from 'element-ui/src/mixins/emitter';
-  import ElScrollbar from 'element-ui/packages/scrollbar';
+  import Popper from 'main/webapp/element-ui/src/utils/vue-popper';
+  import Emitter from 'main/webapp/element-ui/src/mixins/emitter';
+  import ElScrollbar from 'main/webapp/element-ui/packages/scrollbar';
 
   export default {
     components: { ElScrollbar },
@@ -60,7 +60,7 @@
 
     mounted() {
       this.$parent.popperElm = this.popperElm = this.$el;
-      this.referenceElm = this.$parent.$refs.input.$refs.input;
+      this.referenceElm = this.$parent.$refs.input.$refs.input || this.$parent.$refs.input.$refs.textarea;
       this.referenceList = this.$el.querySelector('.el-autocomplete-suggestion__list');
       this.referenceList.setAttribute('role', 'listbox');
       this.referenceList.setAttribute('id', this.id);

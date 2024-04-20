@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/vue.js"></script>
+    <script src="js/axios-0.18.0.js"></script>
+    <script src="element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="css/global.css">
+
+
+
+
+</head>
+<body >
+
+<div id="app" style="height: 100%">
+    <el-container style="height: 100%">
+        <el-aside width="200px" style="height:100%">
+            <el-menu :default-openeds="['1', '3']">
+                <div style="height: 60px;line-height: 60px;text-align: center; color:#FFFFFF">
+                    <i class="el-icon-wallet" style="margin-right: 5px"></i>资金管理系统
+                </div>
+                <el-submenu index="1">
+                    <template slot="title"><i class="el-icon-message"></i>企业群组</template>
+                    <el-menu-item-group>
+                        <template slot="title">分组一</template>
+                        <el-menu-item index="1-1">选项1</el-menu-item>
+                        <el-menu-item index="1-2">选项2</el-menu-item>
+                    </el-menu-item-group>
+                    <el-menu-item-group title="分组2">
+                        <el-menu-item index="1-3">选项3</el-menu-item>
+                    </el-menu-item-group>
+                    <el-submenu index="1-4">
+                        <template slot="title">选项4</template>
+                        <el-menu-item index="1-4-1">选项4-1</el-menu-item>
+                    </el-submenu>
+                </el-submenu>
+                <el-submenu index="2">
+                    <template slot="title"><i class="el-icon-menu"></i>资金中心</template>
+                    <el-menu-item-group>
+                        <template slot="title">分组一</template>
+                        <el-menu-item index="2-1">选项1</el-menu-item>
+                        <el-menu-item index="2-2">选项2</el-menu-item>
+                    </el-menu-item-group>
+
+                    <el-menu-item-group title="分组2" v-if="false">
+                        <el-menu-item index="2-3">选项3</el-menu-item>
+                    </el-menu-item-group>
+                    <el-submenu index="2-4">
+                        <template slot="title" v-if="false">选项4</template>
+                        <el-menu-item index="2-4-1">选项4-1</el-menu-item>
+                    </el-submenu>
+
+
+
+                </el-submenu>
+                <el-submenu index="3" v-if="false">
+                    <template slot="title"><i class="el-icon-setting"></i>导航三</template>
+                    <el-menu-item-group>
+                        <template slot="title">分组一</template>
+                        <el-menu-item index="3-1">选项1</el-menu-item>
+                        <el-menu-item index="3-2">选项2</el-menu-item>
+                    </el-menu-item-group>
+                    <el-menu-item-group title="分组2">
+                        <el-menu-item index="3-3">选项3</el-menu-item>
+                    </el-menu-item-group>
+                    <el-submenu index="3-4" v-if="false">
+                        <template slot="title">选项4</template>
+                        <el-menu-item index="3-4-1">选项4-1</el-menu-item>
+                    </el-submenu>
+                </el-submenu>
+            </el-menu>
+        </el-aside>
+
+
+
+        <el-container style="height: 100%" id="main">
+            <el-header style="text-align: right; font-size: 12px; border-bottom: 1px solid #cccccc; line-height: 60px" >
+                <el-dropdown>
+                    <i class="el-icon-arrow-down" style="margin-right: 15px"></i>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>
+                            <span style="text-decoration: none" @click="personInfo" >个人信息</span>
+                        </el-dropdown-item>
+                        <el-dropdown-item>
+                            <span style="text-decoration: none" @click="logout" >退出登录</span>
+                            </el-dropdown-item>
+                        <el-dropdown-item v-if="false">删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+                <span>{{user.userName}}</span>
+            </el-header>
+
+<!--       以下     操作区-->
+            <el-main>
+                <el-card style="width: 600px">
+                    <el-form label-width="80px" size="small">
+                        <div style="text-align: center; margin: 10px 0">
+
+
+
+                            <el-upload
+                                    class="avatar-uploader"
+                                    action="http://localhost:8080/war_QG_exploded/file/upload"
+                                    :show-file-list="false"
+                                    :on-success="handleAvatarSuccess">
+                                <el-avatar :size="110"  :src="user.headPhoto" class="avatar"></el-avatar>
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </div>
+
+                        <el-form-item label="用户id">
+                            <el-input v-model="user.id" autocomplete="off" disabled></el-input>
+                        </el-form-item>
+                        <el-form-item label="昵称">
+                            <el-input v-model="user.userName" autocomplete="off"></el-input>
+                        </el-form-item>
+
+
+                        <el-form-item label="是否封禁" v-if="user.block">
+                            <span > 已封禁 </span>
+                        </el-form-item>
+
+                        <el-form-item label="电话">
+                            <el-input v-model="user.phone" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="个性签名">
+                            <el-input
+                                    style="width: 480px"
+                                    type="textarea"
+                                    autosize
+                                    v-model="user.signature">
+                            </el-input>
+                        </el-form-item>
+
+                    </el-form>
+
+                    <div style="text-align: center">
+                        <el-button type="primary" @click="updatePersonInfo">确 定</el-button>
+                    </div>
+                </el-card>
+
+            </el-main>
+
+        </el-container>
+    </el-container>
+</div>
+
+<script>
+    new Vue({
+        el:"#app",
+
+        mounted(){
+            const _this = this;
+            axios({
+                method:"get",
+                url:"http://localhost:8080/QG_war_exploded/user/getUser",
+            }).then(resp=>{
+                if(resp.data.code===200){
+                    //装载数据
+                    _this.user.id=resp.data.data.id;
+                    _this.user.userName=resp.data.data.userName;
+                    _this.user.block=resp.data.data.block;
+                    _this.user.money=resp.data.data.money;
+                    _this.user.headPhoto=resp.data.data.headPhoto;
+                    _this.user.signature=resp.data.data.signature;
+                    _this.user.phone=resp.data.data.phone;
+                    alert("欢迎来到资金管理系统,"+_this.user.userName);
+                }else{
+                    alert("初始化失败")
+                }
+            }).catch(err=>{
+                alert("您未登录,请先登录");
+            })
+        },
+        data:{
+            user:{
+                userName:"zhangsan",
+                id:"",
+                phone:"",
+                block:"",
+                money:"",
+                headPhoto:"",
+                signature:""
+            },
+            //个人信息表单是否显现
+            isPersonInfo:false,
+        },
+        methods:{
+            //退出登录
+            logout(){
+                //发送请求销毁session
+                axios({
+                    method:"get",
+                    url:"http://localhost:8080/QG_war_exploded/user/exit",
+                }).then(resp=>{
+                    //跳转到登录界面
+                    alert("即将退出");
+                    window.location.href = "login.html";
+                })
+            },
+            personInfo(){
+                //让表单显现
+                this.isPersonInfo=true;
+            },
+            vShowClear(){
+              //让所有v-show控制的组件都隐藏,为下一个显示作准备
+                this.isPersonInfo=false;
+            },
+            updatePersonInfo(){
+              //修改个人信息
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/user/updatePersonInfo",
+                    data: this.user
+                })
+                    .then(resp=>{
+                        if (resp.data.code === 200){
+                            this.$message({
+                                showClose: true,
+                                message: '修改成功',
+                                type: 'success'
+                            });
+                        }else{
+                            this.$message({
+                                showClose: true,
+                                message: '修改失败',
+                                type: 'error'
+                            });
+                        }
+                    })
+
+            },
+            handleAvatarSuccess(res){
+                //上传成功后，显示上传的图片
+                this.user.headPhoto = res;
+            },
+
+
+
+
+        },
+
+
+    })
+
+</script>
+
+
+
+<style>
+    .avatar-uploader .el-upload {
+
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+    }
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+    }
+    .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+    }
+
+    .el-header {
+        background-color: #B3C0D1;
+        color: #333;
+        line-height: 60px;
+    }
+
+    .el-aside {
+        color: #333;
+    }
+
+    .el-menu{
+        background: #545c64;
+        color:#FFFFFF;
+        height:100%;
+    }
+</style>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 'use strict';
 
 exports.__esModule = true;
-exports.isEmpty = exports.isEqual = exports.arrayEquals = exports.looseEqual = exports.capitalize = exports.kebabCase = exports.autoprefixer = exports.isFirefox = exports.isEdge = exports.isIE = exports.coerceTruthyValueToArray = exports.arrayFind = exports.arrayFindIndex = exports.escapeRegexpString = exports.valueEquals = exports.generateId = exports.getValueByPath = undefined;
+exports.isMac = exports.isEmpty = exports.isEqual = exports.arrayEquals = exports.looseEqual = exports.capitalize = exports.kebabCase = exports.autoprefixer = exports.isFirefox = exports.isEdge = exports.isIE = exports.coerceTruthyValueToArray = exports.arrayFind = exports.arrayFindIndex = exports.escapeRegexpString = exports.valueEquals = exports.generateId = exports.getValueByPath = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -16,7 +16,7 @@ var _vue = require('vue');
 
 var _vue2 = _interopRequireDefault(_vue);
 
-var _types = require('element-ui/lib/utils/types');
+var _types = require('main/webapp/element-ui/lib/utils/types');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -266,3 +266,7 @@ function objToArray(obj) {
   }
   return isEmpty(obj) ? [] : [obj];
 }
+
+var isMac = exports.isMac = function isMac() {
+  return !_vue2.default.prototype.$isServer && /macintosh|mac os x/i.test(navigator.userAgent);
+};

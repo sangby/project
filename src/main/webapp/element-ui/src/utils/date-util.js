@@ -1,5 +1,5 @@
-import fecha from 'element-ui/src/utils/date';
-import { t } from 'element-ui/src/locale';
+import fecha from 'main/webapp/element-ui/src/utils/date';
+import { t } from 'main/webapp/element-ui/src/locale';
 
 const weeks = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -48,19 +48,9 @@ export const parseDate = function(string, format) {
 };
 
 export const getDayCountOfMonth = function(year, month) {
-  if (month === 3 || month === 5 || month === 8 || month === 10) {
-    return 30;
-  }
+  if (isNaN(+month)) return 31;
 
-  if (month === 1) {
-    if (year % 4 === 0 && year % 100 !== 0 || year % 400 === 0) {
-      return 29;
-    } else {
-      return 28;
-    }
-  }
-
-  return 31;
+  return new Date(year, +month + 1, 0).getDate();
 };
 
 export const getDayCountOfYear = function(year) {

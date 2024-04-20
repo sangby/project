@@ -213,12 +213,12 @@
 </template>
 
 <script type="text/babel">
-  import ElCheckbox from 'element-ui/packages/checkbox';
+  import ElCheckbox from 'main/webapp/element-ui/packages/checkbox';
   import { debounce, throttle } from 'throttle-debounce';
-  import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
-  import Mousewheel from 'element-ui/src/directives/mousewheel';
-  import Locale from 'element-ui/src/mixins/locale';
-  import Migrating from 'element-ui/src/mixins/migrating';
+  import { addResizeListener, removeResizeListener } from 'main/webapp/element-ui/src/utils/resize-event';
+  import Mousewheel from 'main/webapp/element-ui/src/directives/mousewheel';
+  import Locale from 'main/webapp/element-ui/src/mixins/locale';
+  import Migrating from 'main/webapp/element-ui/src/mixins/migrating';
   import { createStore, mapStates } from './store/helper';
   import TableLayout from './table-layout';
   import TableBody from './table-body';
@@ -294,6 +294,11 @@
       headerCellStyle: [Object, Function],
 
       highlightCurrentRow: Boolean,
+
+      highlightSelectionRow: {
+        type: Boolean,
+        default: false
+      },
 
       currentRowKey: [String, Number],
 
@@ -412,7 +417,7 @@
       },
 
       // TODO 使用 CSS transform
-      syncPostion: throttle(20, function() {
+      syncPostion() {
         const { scrollLeft, scrollTop, offsetWidth, scrollWidth } = this.bodyWrapper;
         const { headerWrapper, footerWrapper, fixedBodyWrapper, rightFixedBodyWrapper } = this.$refs;
         if (headerWrapper) headerWrapper.scrollLeft = scrollLeft;
@@ -427,17 +432,30 @@
         } else {
           this.scrollPosition = 'middle';
         }
+      },
+
+      throttleSyncPostion: throttle(16, function() {
+        this.syncPostion();
       }),
 
+      onScroll(evt) {
+        let raf = window.requestAnimationFrame;
+        if (!raf) {
+          this.throttleSyncPostion();
+        } else {
+          raf(this.syncPostion);
+        }
+      },
+
       bindEvents() {
-        this.bodyWrapper.addEventListener('scroll', this.syncPostion, { passive: true });
+        this.bodyWrapper.addEventListener('scroll', this.onScroll, { passive: true });
         if (this.fit) {
           addResizeListener(this.$el, this.resizeListener);
         }
       },
 
       unbindEvents() {
-        this.bodyWrapper.removeEventListener('scroll', this.syncPostion, { passive: true });
+        this.bodyWrapper.removeEventListener('scroll', this.onScroll, { passive: true });
         if (this.fit) {
           removeResizeListener(this.$el, this.resizeListener);
         }

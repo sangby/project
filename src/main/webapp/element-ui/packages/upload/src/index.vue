@@ -1,8 +1,8 @@
 <script>
-import UploadList from './upload-list';
-import Upload from './upload';
-import ElProgress from 'element-ui/packages/progress';
-import Migrating from 'element-ui/src/mixins/migrating';
+import UploadList from './upload-list.vue';
+import Upload from './upload.vue';
+import ElProgress from 'main/webapp/element-ui/packages/progress';
+import Migrating from 'main/webapp/element-ui/src/mixins/migrating';
 
 function noop() {}
 

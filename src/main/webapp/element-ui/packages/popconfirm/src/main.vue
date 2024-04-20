@@ -20,14 +20,14 @@
         :type="cancelButtonType" 
         @click="cancel"
       >
-        {{cancelButtonText}}
+        {{ displayCancelButtonText }}
       </el-button>
       <el-button 
         size="mini" 
         :type="confirmButtonType" 
         @click="confirm"
       >
-        {{confirmButtonText}}
+        {{ displayConfirmButtonText }}
       </el-button>
     </div>
   </div>
@@ -36,9 +36,9 @@
 </template>
 
 <script>
-import ElPopover from 'element-ui/packages/popover';
-import ElButton from 'element-ui/packages/button';
-import {t} from 'element-ui/src/locale';
+import ElPopover from 'main/webapp/element-ui/packages/popover';
+import ElButton from 'main/webapp/element-ui/packages/button';
+import {t} from 'main/webapp/element-ui/src/locale';
 
 export default {
   name: 'ElPopconfirm',
@@ -47,12 +47,10 @@ export default {
       type: String
     },
     confirmButtonText: {
-      type: String,
-      default: t('el.popconfirm.confirmButtonText')
+      type: String
     },
     cancelButtonText: {
-      type: String,
-      default: t('el.popconfirm.cancelButtonText')
+      type: String
     },
     confirmButtonType: {
       type: String,
@@ -84,14 +82,22 @@ export default {
       visible: false
     };
   },
+  computed: {
+    displayConfirmButtonText() {
+      return this.confirmButtonText || t('el.popconfirm.confirmButtonText');
+    },
+    displayCancelButtonText() {
+      return this.cancelButtonText || t('el.popconfirm.cancelButtonText');
+    }
+  },
   methods: {
     confirm() {
       this.visible = false;
-      this.$emit('onConfirm');
+      this.$emit('confirm');
     },
     cancel() {
       this.visible = false;
-      this.$emit('onCancel');
+      this.$emit('cancel');
     }
   }
 };

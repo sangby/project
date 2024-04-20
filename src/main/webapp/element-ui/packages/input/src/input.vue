@@ -108,11 +108,11 @@
   </div>
 </template>
 <script>
-  import emitter from 'element-ui/src/mixins/emitter';
-  import Migrating from 'element-ui/src/mixins/migrating';
+  import emitter from 'main/webapp/element-ui/src/mixins/emitter';
+  import Migrating from 'main/webapp/element-ui/src/mixins/migrating';
   import calcTextareaHeight from './calcTextareaHeight';
-  import merge from 'element-ui/src/utils/merge';
-  import {isKorean} from 'element-ui/src/utils/shared';
+  import merge from 'main/webapp/element-ui/src/utils/merge';
+  import {isKorean} from 'main/webapp/element-ui/src/utils/shared';
 
   export default {
     name: 'ElInput',
@@ -337,15 +337,18 @@
         this.focused = true;
         this.$emit('focus', event);
       },
-      handleCompositionStart() {
+      handleCompositionStart(event) {
+        this.$emit('compositionstart', event);
         this.isComposing = true;
       },
       handleCompositionUpdate(event) {
+        this.$emit('compositionupdate', event);
         const text = event.target.value;
         const lastCharacter = text[text.length - 1] || '';
         this.isComposing = !isKorean(lastCharacter);
       },
       handleCompositionEnd(event) {
+        this.$emit('compositionend', event);
         if (this.isComposing) {
           this.isComposing = false;
           this.handleInput(event);
@@ -403,7 +406,9 @@
       },
       handlePasswordVisible() {
         this.passwordVisible = !this.passwordVisible;
-        this.focus();
+        this.$nextTick(() => {
+          this.focus();
+        });
       },
       getInput() {
         return this.$refs.input || this.$refs.textarea;

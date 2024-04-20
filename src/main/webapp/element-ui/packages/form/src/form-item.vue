@@ -40,10 +40,10 @@
 </template>
 <script>
   import AsyncValidator from 'async-validator';
-  import emitter from 'element-ui/src/mixins/emitter';
-  import objectAssign from 'element-ui/src/utils/merge';
-  import { noop, getPropByPath } from 'element-ui/src/utils/util';
-  import LabelWrap from './label-wrap';
+  import emitter from 'main/webapp/element-ui/src/mixins/emitter';
+  import objectAssign from 'main/webapp/element-ui/src/utils/merge';
+  import { noop, getPropByPath } from 'main/webapp/element-ui/src/utils/util';
+  import LabelWrap from './label-wrap.vue';
   export default {
     name: 'ElFormItem',
 
@@ -95,6 +95,11 @@
       },
       validateStatus(value) {
         this.validateState = value;
+      },
+      rules(value) {
+        if ((!value || value.length === 0) && this.required === undefined) {
+          this.clearValidate();
+        }
       }
     },
     computed: {

@@ -57,21 +57,21 @@
 </head>
 <body>
 <div id="background">
-    <div id="logo">MySystem</div>
+    <div id="logo">资金管理系统</div>
 
     <div id="register">
         <el-card class="box-card">
-            <el-form id="form" v-model="user">
+            <el-form id="form" v-model="registerUser">
 
                 <el-form-item label="用户名:">
-                    <el-input v-model.trim="user.username" placeholder="请输入用户名" clearable round style="width:300px"></el-input>
+                    <el-input v-model.trim="registerUser.username" placeholder="请输入用户名" clearable round style="width:300px"></el-input>
                 </el-form-item>
 
                 <el-form-item label="密码:">
-                    <el-input type="password" v-model.trim="user.password" placeholder="请输入密码"  clearable round style="width:300px"></el-input>
+                    <el-input type="password" v-model.trim="registerUser.password" placeholder="请输入密码"  clearable round style="width:300px"></el-input>
                 </el-form-item>
                 <el-form-item label="确认密码:">
-                    <el-input type="password" v-model="user.checkPass" style="width:300px" placeholder="请再次输入密码"  clearable round></el-input>
+                    <el-input type="password" v-model="registerUser.checkPass" style="width:300px" placeholder="请再次输入密码"  clearable round></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -95,7 +95,7 @@
             data: {
 
 
-                user: {
+                registerUser: {
                     username: "",
                     password: "",
                     checkPass:""
@@ -105,15 +105,15 @@
             methods:{
               submitForm(){
 
-                      if (this.user.username === '' || this.user.password === '') {
+                      if (this.registerUser.username === '' || this.registerUser.password === '') {
                           alert('账号或密码不能为空');
                           return;
                       }
-                      if (this.user.username.length>20 || this.user.password.length>20){
+                      if (this.registerUser.username.length>20 || this.registerUser.password.length>20){
                           alert('账号或密码长度不能超过20');
                           return;
                       }
-                      if(this.user.password!==this.user.checkPass){
+                      if(this.registerUser.password!==this.registerUser.checkPass){
                           alert('两次输入的密码不一致');
                           return;
                       }
@@ -134,7 +134,7 @@
                   axios({
                       method:"post",
                       url:"http://localhost:8080/QG_war_exploded/user/register",
-                      data:this.user,
+                      data:this.registerUser,
                   }).then(resp=>{
                       if(resp.data.code===200){
                           alert('注册成功');

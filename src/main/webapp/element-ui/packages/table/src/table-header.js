@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import { hasClass, addClass, removeClass } from 'element-ui/src/utils/dom';
-import ElCheckbox from 'element-ui/packages/checkbox';
+import { hasClass, addClass, removeClass } from 'main/webapp/element-ui/src/utils/dom';
+import ElCheckbox from 'main/webapp/element-ui/packages/checkbox';
 import FilterPanel from './filter-panel.vue';
 import LayoutObserver from './layout-observer';
 import { mapStates } from './store/helper';
@@ -136,7 +136,7 @@ export default {
                   </th>))
                 }
                 {
-                  this.hasGutter ? <th class="gutter"></th> : ''
+                  this.hasGutter ? <th class="el-table__cell gutter"></th> : ''
                 }
               </tr>
             )
@@ -286,11 +286,12 @@ export default {
         }));
       }
 
+      classes.push('el-table__cell');
+
       return classes.join(' ');
     },
 
-    toggleAllSelection(event) {
-      event.stopPropagation();
+    toggleAllSelection() {
       this.store.commit('toggleAllSelection');
     },
 

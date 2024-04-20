@@ -1,5 +1,5 @@
 <script>
-  import TabNav from './tab-nav';
+  import TabNav from './tab-nav.vue';
 
   export default {
     name: 'ElTabs',

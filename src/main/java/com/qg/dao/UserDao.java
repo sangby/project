@@ -31,6 +31,15 @@ public interface UserDao {
      */
     User selectByName(String userName);
 
+    /**
+     * 注册时输入信息
+     *
+     * @param userName 用户名称
+     * @param password 密码
+     *
+     * @return int
+     */
+
     int insertNewOne(String userName,String password) throws SQLException;
 
 }

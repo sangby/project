@@ -44,9 +44,9 @@
 </template>
 
 <script type="text/babel">
-  import { hasClass } from 'element-ui/src/utils/dom';
-  import { isDate, range, nextDate, getDayCountOfYear } from 'element-ui/src/utils/date-util';
-  import { arrayFindIndex, coerceTruthyValueToArray } from 'element-ui/src/utils/util';
+  import { hasClass } from 'main/webapp/element-ui/src/utils/dom';
+  import { isDate, range, nextDate, getDayCountOfYear } from 'main/webapp/element-ui/src/utils/date-util';
+  import { arrayFindIndex, coerceTruthyValueToArray } from 'main/webapp/element-ui/src/utils/util';
 
   const datesInYear = year => {
     const numOfDays = getDayCountOfYear(year);
@@ -64,7 +64,8 @@
           return val === null || (val instanceof Date && isDate(val));
         }
       },
-      date: {}
+      date: {},
+      selectionMode: {}
     },
 
     computed: {
@@ -93,7 +94,16 @@
         if (target.tagName === 'A') {
           if (hasClass(target.parentNode, 'disabled')) return;
           const year = target.textContent || target.innerText;
-          this.$emit('pick', Number(year));
+          if (this.selectionMode === 'years') {
+            const value = this.value || [];
+            const idx = arrayFindIndex(value, date => date.getFullYear() === Number(year));
+            const newValue = idx > -1
+              ? [...value.slice(0, idx), ...value.slice(idx + 1)]
+              : [...value, new Date(year)];
+            this.$emit('pick', newValue);
+          } else {
+            this.$emit('pick', Number(year));
+          }
         }
       }
     }

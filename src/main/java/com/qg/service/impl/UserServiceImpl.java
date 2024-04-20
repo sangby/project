@@ -4,6 +4,7 @@ import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
 import com.qg.constant.ResultEnum;
 import com.qg.dao.UserDao;
+import com.qg.dao.impl.UserDaoImpl;
 import com.qg.po.User;
 import com.qg.service.UserService;
 import com.qg.util.impl.PoolUtil;
@@ -69,7 +70,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result<User> loginInit(String userName) {
-        return null;
+        UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+        User user = userDaoSingleton.selectByName(userName);
+        //不返回敏感信息
+        user.setPassWord("");
+        //这个时候用户一般存在,除非突然去数据把数据删了,我就不考虑先
+       return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),user);
+
     }
 
     @Override

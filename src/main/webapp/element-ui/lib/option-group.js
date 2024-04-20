@@ -192,7 +192,7 @@ function normalizeComponent (
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = require("element-ui/lib/mixins/emitter");
+module.exports = require("main/webapp/element-ui/lib/mixins/emitter");
 
 /***/ }),
 

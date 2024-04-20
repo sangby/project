@@ -36,9 +36,9 @@
   </div>
 </template>
 <script>
-  import emitter from 'element-ui/src/mixins/emitter';
-  import Focus from 'element-ui/src/mixins/focus';
-  import Migrating from 'element-ui/src/mixins/migrating';
+  import emitter from 'main/webapp/element-ui/src/mixins/emitter';
+  import Focus from 'main/webapp/element-ui/src/mixins/focus';
+  import Migrating from 'main/webapp/element-ui/src/mixins/migrating';
 
   export default {
     name: 'ElSwitch',
@@ -134,7 +134,9 @@
         this.$nextTick(() => {
           // set input's checked property
           // in case parent refuses to change component's value
-          this.$refs.input.checked = this.checked;
+          if (this.$refs.input) {
+            this.$refs.input.checked = this.checked;
+          }
         });
       },
       setBackgroundColor() {

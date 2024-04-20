@@ -24,6 +24,7 @@
       tabindex="-1"
       @focus="focus = true"
       @blur="focus = false"
+      autocomplete="off"
     >
     <span
       class="el-radio-button__inner"
@@ -35,7 +36,7 @@
   </label>
 </template>
 <script>
-  import Emitter from 'element-ui/src/mixins/emitter';
+  import Emitter from 'main/webapp/element-ui/src/mixins/emitter';
 
   export default {
     name: 'ElRadioButton',

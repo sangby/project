@@ -2,6 +2,7 @@ package com.qg.dao.impl;
 
 import com.qg.dao.UserDao;
 import com.qg.po.User;
+import com.qg.util.impl.PoHandler;
 import com.qg.util.impl.PoolUtil;
 import com.qg.util.impl.UserHandler;
 
@@ -39,9 +40,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User selectByName(String userName) {
-        String sql = "select * from `user` where `userName`=?";
+        String sql = "select * from `user` where `username`=?";
         try {
-            return PoolUtil.Tquery(sql, new UserHandler(), userName).get(0);
+            return PoolUtil.Tquery(sql, new PoHandler<>(User.class), userName);
         } catch (Exception e) {
             e.printStackTrace();
         }
