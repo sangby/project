@@ -10,7 +10,8 @@ import java.util.List;
 
 public class FirmDaoImpl implements FirmDao {
     public  List<Firm> findFirmByFirmName(String firmName){
-        String sql = "select * from firm where firmName = ?and block = 0";
+        //群组不被封禁,公开才可被搜索
+        String sql = "select * from firm where firmName = ?and block = 0 and open=1";
         try {
             return PoolUtil.Tquery(sql, new PoListHandler<>(Firm.class), firmName);
         } catch (Exception e) {

@@ -72,7 +72,8 @@
                           showassword></el-input>
                 <el-button type="primary" @click="submitForm" round>登录</el-button>
                 <el-button type="primary" @click="toregister" round>注册</el-button>
-                <el-button type="primary" @click="askAdmin" round style="margin-left: 50px">解封账号</el-button>
+                <el-button type="primary" @click="tovisitor" round>游客登录</el-button>
+                <el-button type="primary" @click="askAdmin" round style="margin-left: 230px">解封账号</el-button>
 
             </el-form>
         </el-card>
@@ -142,7 +143,11 @@
             //账号解封
             askAdmin(){
                 window.location.href="recover.html";
-            }
+            },
+            tovisitor(){
+              window.location.href="visitor.html";
+            },
+
 
 
         },
