@@ -44,7 +44,7 @@ public class PoListHandler <T> implements MyHandler<List<T>> {
      */
 
     @Override
-    public List<T> handler(PreparedStatement ps) throws SQLException, InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException {
+    public List<T> handler(PreparedStatement ps) throws Exception {
         ResultSet rs = ps.executeQuery();
         //类的信息
         BeanInfo beanInfo = Introspector.getBeanInfo(clazz, Object.class);

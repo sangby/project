@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
+  <script src="js/vue.js"></script>
+  <script src="js/axios-0.18.0.js"></script>
+  <script src="element-ui/lib/index.js"></script>
+  <link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+
+  <style>
+    body {
+      background: url(./img/star.jpg) ;
+      /*尺寸*/
+      background-size: cover;
+
+    }
+    /*标*/
+    #logo{
+      /*尺寸*/
+      font-size: 25px;
+      font-weight: 800;
+      /*全部大写*/
+      text-transform: uppercase;
+      color: #fff;
+      position: absolute;
+      /*定位*/
+      top: 15%;
+      left: 85%;
+      transform: translate(-50%, -50%);
+    }
+
+    /*框框*/
+    #recover{
+
+      /*定位*/
+      position: absolute;
+      top: 28%;
+      left: 35%;
+
+    }
+
+    .box-card{
+      /*尺寸*/
+      width: 500px;
+      /*height: 400px;*/
+      background-color: rgba(255,255,255,0.382);
+    }
+    #form{
+      line-height: 60px;
+      padding-left: 15px;
+      padding-right: 15px;
+      border-radius: 15px;
+    }
+  </style>
+</head>
+<body>
+<div id="background">
+  <div id="logo">解封账号</div>
+
+  <div id="recover">
+    <el-card class="box-card">
+      <el-form label-width="80">
+        <el-form-item label="id">
+          <el-input style="width: 420px" v-model="id"></el-input>
+        </el-form-item>
+        <el-form-item label="解冻理由">
+          <el-input
+                  style="width: 377px"
+                  type="textarea"
+                  autosize
+                  v-model="reason">
+          </el-input>
+        </el-form-item>
+        <div style="text-align: center">
+          <el-button type="primary" @click="applyDeBlock">确 定</el-button>
+        </div>
+      </el-form>
+    </el-card>
+  </div>
+</div>
+
+<script>
+  import id from "./element-ui/src/locale/lang/id";
+
+  new Vue({
+    el: "#recover",
+    data: {
+      //请求
+      request:{
+        //解封账号id
+        id:"",
+        //解封理由
+        reason:"",
+      },
+
+    },
+    methods: {
+      //申请解封
+      applyDeBlock(){
+        if (this.request.id===null||this.request.reason===null){
+          alert("请填写完整信息");
+          return;
+        }
+          axios({
+            method:"post",
+            url:"http://localhost:8080/war_QG_exploded/user/deBlock",
+            data:this.request
+          }).then(resp=>{
+
+            if (resp.data.code==200) {
+              this.$message({
+                showClose: true,
+                message: '发送成功',
+                type: 'success'
+              });
+            }else {
+              this.$message({
+                showClose: true,
+                message: '发送失败',
+                type: 'error'
+              });
+            }
+          }).catch(err=>{
+
+            this.$message({
+              showClose: true,
+              message: '功能可能还没开始开发,发送失败',
+              type: 'error'
+            });
+          })
+      }
+    },
+
+
+  })
+
+</script>
+
+
+
+</body>
+</html>

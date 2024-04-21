@@ -22,7 +22,7 @@ public class UserHandler implements MyHandler<List<User>> {
         ResultSet rs = ps.executeQuery();
         List<User> list = new ArrayList<>();
         while(rs.next()){
-            Integer id = rs.getInt("id");
+            Integer id = rs.getInt("uid");
             String username = rs.getString("username");
             String password = rs.getString("password");
             User user = new User(id,username,password);

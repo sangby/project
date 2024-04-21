@@ -25,32 +25,38 @@
                 <el-submenu index="1">
                     <template slot="title"><i class="el-icon-message"></i>企业群组</template>
                     <el-menu-item-group>
-                        <template slot="title">分组一</template>
-                        <el-menu-item index="1-1">选项1</el-menu-item>
-                        <el-menu-item index="1-2">选项2</el-menu-item>
-                    </el-menu-item-group>
-                    <el-menu-item-group title="分组2">
-                        <el-menu-item index="1-3">选项3</el-menu-item>
-                    </el-menu-item-group>
-                    <el-submenu index="1-4">
-                        <template slot="title">选项4</template>
-                        <el-menu-item index="1-4-1">选项4-1</el-menu-item>
-                    </el-submenu>
-                </el-submenu>
-                <el-submenu index="2">
-                    <template slot="title"><i class="el-icon-menu"></i>资金中心</template>
-                    <el-menu-item-group>
-                        <template slot="title">分组一</template>
-                        <el-menu-item index="2-1">选项1</el-menu-item>
-                        <el-menu-item index="2-2">选项2</el-menu-item>
+                        <template slot="title">创建或搜索群组</template>
+                        <el-menu-item index="2-1" @click="userClear();isCreateFirm=true">创建群组</el-menu-item>
+                        <el-menu-item index="2-2" @click="userClear();isFindFirm=true">搜索群组</el-menu-item>
                     </el-menu-item-group>
 
-                    <el-menu-item-group title="分组2" v-if="false">
-                        <el-menu-item index="2-3">选项3</el-menu-item>
+                    <el-menu-item-group title="我的群组" >
+                        <el-menu-item index="2-3">我负责的群组</el-menu-item>
+                        <el-menu-item index="2-4">
+                            <template slot="title">我加入的群组</template>
+                        </el-menu-item>
                     </el-menu-item-group>
-                    <el-submenu index="2-4">
-                        <template slot="title" v-if="false">选项4</template>
-                        <el-menu-item index="2-4-1">选项4-1</el-menu-item>
+
+                </el-submenu>
+
+                <el-submenu index="2">
+                    <template slot="title"><i class="el-icon-menu"></i>资金中心</template>
+
+                        <el-menu-item-group>
+                            <template slot="title">资金明细</template>
+                            <el-menu-item index="1-1">我的资金</el-menu-item>
+                            <el-menu-item index="1-2">我的流水</el-menu-item>
+                        </el-menu-item-group>
+                        <el-menu-item-group title="资金交易">
+                            <el-menu-item index="1-3">发起群收款</el-menu-item>
+                        </el-menu-item-group>
+                        <el-submenu index="1-4">
+                            <template slot="title">支付</template>
+                            <el-menu-item index="1-4-1">转账</el-menu-item>
+                            <el-menu-item index="1-4-2">群付款</el-menu-item>
+                            <el-menu-item index="1-4-3">充值资金到群组</el-menu-item>
+
+                        </el-submenu>
                     </el-submenu>
 
 
@@ -95,8 +101,9 @@
 
 <!--       以下     操作区-->
             <el-main>
-                <el-card style="width: 600px">
-                    <el-form label-width="80px" size="small">
+<!--                个人信息-->
+                <el-card style="width: 600px" v-if="isPersonInfo">
+                    <el-form label-width="80px" size="small" >
                         <div style="text-align: center; margin: 10px 0">
 
 
@@ -112,7 +119,7 @@
                         </div>
 
                         <el-form-item label="用户id">
-                            <el-input v-model="user.id" autocomplete="off" disabled></el-input>
+                            <el-input v-model="user.uid" autocomplete="off" disabled></el-input>
                         </el-form-item>
                         <el-form-item label="昵称">
                             <el-input v-model="user.userName" autocomplete="off"></el-input>
@@ -141,7 +148,52 @@
                         <el-button type="primary" @click="updatePersonInfo">确 定</el-button>
                     </div>
                 </el-card>
+<!--搜索群组-->
+                <el-card class="box-card" v-if="isFindFirm" style="width: 500px;margin-left: 30px;margin-top: 20px">
+                    <el-form label-width="80px" size="small">
+                        <el-form-item label="群组名称">
+                            <el-input v-model="firm.firmName" placeholder="请输入群组名称"></el-input>
+                        </el-form-item>
+                        <div style="text-align: center">
+                            <el-button type="primary" @click="findFirm" >搜索</el-button>
+                        </div>
+                    </el-form>
 
+                </el-card>
+
+                <el-card class="box-card" v-if="isFindFirmList" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
+
+                    <el-table
+                            :data="firmList"
+                            style="width: 100%">
+                        <el-table-column
+                                prop="headPhoto"
+                                label="头像"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="fid"
+                                label="群组id"
+                                >
+                        </el-table-column>
+                        <el-table-column
+                                prop="firmName"
+                                label="群组名称"
+                                >
+                        </el-table-column>
+                        <el-table-column
+                                prop="introduction"
+                                label="群组简介"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="memberNum"
+                                label="群组人数"
+                        >
+                        </el-table-column>
+
+                    </el-table>
+                </el-card>
             </el-main>
 
         </el-container>
@@ -160,14 +212,18 @@
             }).then(resp=>{
                 if(resp.data.code===200){
                     //装载数据
-                    _this.user.id=resp.data.data.id;
+                    _this.user.uid=resp.data.data.uid;
                     _this.user.userName=resp.data.data.userName;
                     _this.user.block=resp.data.data.block;
                     _this.user.money=resp.data.data.money;
                     _this.user.headPhoto=resp.data.data.headPhoto;
                     _this.user.signature=resp.data.data.signature;
                     _this.user.phone=resp.data.data.phone;
-                    alert("欢迎来到资金管理系统,"+_this.user.userName);
+                    if(_this.user.block===false) {alert("欢迎来到资金管理系统,"+_this.user.userName);}
+                    else{
+                        alert("您的账号已被封禁,请联系管理员");
+                        window.location.href="http://localhost:8080/QG_war_exploded/login.html";
+                    }
                 }else{
                     alert("初始化失败")
                 }
@@ -177,16 +233,50 @@
         },
         data:{
             user:{
-                userName:"zhangsan",
-                id:"",
+                userName:"",
+                uid:"",
                 phone:"",
                 block:"",
                 money:"",
                 headPhoto:"",
                 signature:""
             },
+            firm:{
+                fid:"",
+                firmName:"",
+                introduction:"",
+                memberNum:"",
+                headPhoto:"",
+                open:"",
+                block:"",
+                fund:"",
+            },
+            //群组队列
+            firmList:[],
             //个人信息表单是否显现
             isPersonInfo:false,
+            //创建群组
+            isCreateFirm:false,
+            //我负责的群组
+            isResponseFirm:false,
+            //我加入的群组
+            isJoinFirm:false,
+            //搜索群组
+            isFindFirm:false,
+            //我的资金
+            isMyFund:false,
+            //我的资金流水
+            isMyDetailAccount:false,
+            //群收款
+            isGroupCollect:false,
+            // 群付款
+            isPayGroupCollect:false,
+            //转账
+            isTransferAccount:false,
+            //充值到群组
+            isPayToFirm:false,
+            //显示搜索群组的列表
+            isFindFirmList:false
         },
         methods:{
             //退出登录
@@ -201,13 +291,25 @@
                     window.location.href = "login.html";
                 })
             },
+            //让表单显现
             personInfo(){
-                //让表单显现
+                this.userClear();
                 this.isPersonInfo=true;
             },
-            vShowClear(){
-              //让所有v-show控制的组件都隐藏,为下一个显示作准备
+            //让所有v-show控制的组件都隐藏,为下一个显示作准备,已经把东西写完了
+            userClear(){
                 this.isPersonInfo=false;
+                this.isCreateFirm=false;
+                this.isResponseFirm=false;
+                this.isJoinFirm=false;
+                this.isFindFirm=false;
+                this.isMyFund=false;
+                this.isMyDetailAccount=false;
+                this.isGroupCollect=false;
+                this.isPayGroupCollect=false;
+                this.isTransferAccount=false;
+                this.isPayToFirm=false;
+                this.isFindFirmList=false;
             },
             updatePersonInfo(){
               //修改个人信息
@@ -233,10 +335,30 @@
                     })
 
             },
+            //搜索群组
+            findFirm(){
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/firm/findFirm",
+                    data:this.firm
+                }).then(resp=>{
+                    //返回的数据渲染到列表上,并让列表可视化
+                    this.firmList = resp.data.data;
+                    this.isFindFirmList=true;
+                })
+            },
+            //上传成功后，显示上传的图片
             handleAvatarSuccess(res){
-                //上传成功后，显示上传的图片
                 this.user.headPhoto = res;
             },
+            //检测到用户被封禁
+            handleBan(){
+
+            },
+            //创建群组
+            createGroup(){
+
+            }
 
 
 

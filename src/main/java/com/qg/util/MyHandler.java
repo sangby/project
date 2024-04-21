@@ -20,5 +20,5 @@ public interface MyHandler<T> {
      *
      * @return 返回处理结果
      */
-    T handler(PreparedStatement ps) throws SQLException, InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException;
+    T handler(PreparedStatement ps) throws SQLException, InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException, Exception;
 }

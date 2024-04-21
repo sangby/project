@@ -1,9 +1,11 @@
 package com.qg.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
 import com.qg.constant.ResultEnum;
+import com.qg.dao.impl.UserDaoImpl;
 import com.qg.po.User;
 import com.qg.service.UserService;
 import com.qg.service.impl.UserServiceImpl;
@@ -66,6 +68,7 @@ public class UserServlet extends BaseServlet {
             HttpSession session = req.getSession();
             session.setAttribute("userName", user.getUserName());
 
+
         //封装为json对象,返回前端后,通过code判断登录情况
         JsonUtil.toJson(userResult,resp);
 
@@ -119,6 +122,11 @@ public class UserServlet extends BaseServlet {
         UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
         Result<User> initResult = userServiceSingleton.loginInit(userName.toString());
 
+        //上面用用户名来标记用户(session)不太安全,刚好可以在这里补个id
+        //之后就用这个来标记用户
+        User data = initResult.getData();
+        session.setAttribute("uid",data.getUid());
+
         JsonUtil.toJson(initResult,resp);
 
     }
@@ -171,12 +179,34 @@ public class UserServlet extends BaseServlet {
      * @param response 响应
      */
 
-    public void updatePersonInfo(HttpServletRequest request,HttpServletResponse response) throws IOException {
+    public void updatePersonInfo(HttpServletRequest request,HttpServletResponse response) throws IOException, SQLException {
+        //处理post数据,得到User对象
         BufferedReader reader = request.getReader();
+        String userStr = reader.readLine();
+        User user = JSON.parseObject(userStr, User.class);
 
+        //获取UserService实例,传入User对象
+        UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+        Result<Object> updateResult = userServiceSingleton.updatePersonInfo(user);
+
+
+        //返回结果
+        JsonUtil.toJson(updateResult, response);
 
     }
 
+    public void block(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        BufferedReader reader = request.getReader();
+        String blockIdStr = reader.readLine();
+        Integer blockId = JSON.parseObject(blockIdStr, Integer.class);
+
+        //服务层
+        UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+        Result<Object> blockUserResult = userServiceSingleton.blockUser(blockId);
+
+        JsonUtil.toJson(blockUserResult, response);
+
+    }
     /**
      * 基金,传入id,传回其他群组资金,负责群组资金,个人余额,
      *

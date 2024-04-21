@@ -14,7 +14,7 @@ public class Firm {
     /**
      * 介绍
      */
-    private String introduce;
+    private String introduction;
     /**
      * 公开
      */
@@ -36,7 +36,17 @@ public class Firm {
      */
     private String headPhoto;
 
-    //省略getter和setter方法
+
+    public Firm(Integer fid, String firmName, String introduction, Boolean open, Integer memberNum, Integer fund, Boolean block, String headPhoto) {
+        this.fid = fid;
+        this.firmName = firmName;
+        this.introduction = introduction;
+        this.open = open;
+        this.memberNum = memberNum;
+        this.fund = fund;
+        this.block = block;
+        this.headPhoto = headPhoto;
+    }
 
     public Integer getFid() {
         return fid;
@@ -54,12 +64,12 @@ public class Firm {
         this.firmName = firmName;
     }
 
-    public String getIntroduce() {
-        return introduce;
+    public String getIntroduction() {
+        return introduction;
     }
 
-    public void setIntroduce(String introduce) {
-        this.introduce = introduce;
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
     }
 
     public Boolean getOpen() {
@@ -99,17 +109,6 @@ public class Firm {
     }
 
     public void setHeadPhoto(String headPhoto) {
-        this.headPhoto = headPhoto;
-    }
-
-    public Firm(Integer fid, String firmName, String introduce, Boolean open, Integer memberNum, Integer fund, Boolean block, String headPhoto) {
-        this.fid = fid;
-        this.firmName = firmName;
-        this.introduce = introduce;
-        this.open = open;
-        this.memberNum = memberNum;
-        this.fund = fund;
-        this.block = block;
         this.headPhoto = headPhoto;
     }
 

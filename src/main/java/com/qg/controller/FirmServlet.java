@@ -1,8 +1,20 @@
 package com.qg.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.qg.bean.SingletonFactory;
+import com.qg.constant.Result;
+import com.qg.po.Firm;
+import com.qg.service.impl.FirmServiceImpl;
+import com.qg.util.JsonUtil;
+
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.List;
 
+@WebServlet("/firm/*")
 public class FirmServlet extends BaseServlet{
 
     /**
@@ -36,7 +48,17 @@ public class FirmServlet extends BaseServlet{
      * @param resp 响应
      */
 
-    public void findFirm(HttpServletRequest req, HttpServletResponse resp){
+    public void findFirm(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        BufferedReader reader = req.getReader();
+        String findFirmNameStr = reader.readLine();
+        //很奇怪,单传一个中文字符串,JSON数据乱码了
+        Firm firm = JSON.parseObject(findFirmNameStr, Firm.class);
+        String findFirmName = firm.getFirmName();
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+        Result<List<Firm>> findFirmResult = firmServiceSingleton.findFirm(findFirmName);
+
+        JsonUtil.toJson(findFirmResult, resp);
 
     }
 

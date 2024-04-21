@@ -150,7 +150,7 @@ public abstract class PoolUtil {
      * @return t
      */
 
-    public static <T> T Tquery(String sql, MyHandler<T> handler, Object...param) throws SQLException, InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException {
+    public static <T> T Tquery(String sql, MyHandler<T> handler, Object...param) throws Exception {
         PreparedStatement pstm = params(sql, param);
         T t = handler.handler(pstm);
         pstm.close();

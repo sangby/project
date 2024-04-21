@@ -11,7 +11,7 @@ public class User {
     /**
      * 身份id
      */
-    private Integer id;
+    private Integer uid;
     /**
      * 用户名
      */
@@ -50,12 +50,12 @@ public class User {
     public User() {
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getUid() {
+        return uid;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUid(Integer uid) {
+        this.uid = uid;
     }
 
     public String getUserName() {
@@ -114,8 +114,8 @@ public class User {
         this.signature = signature;
     }
 
-    public User(Integer id, String userName, String passWord, String phone, Boolean block, Integer money, String headPhoto, String signature) {
-        this.id = id;
+    public User(Integer uid, String userName, String passWord, String phone, Boolean block, Integer money, String headPhoto, String signature) {
+        this.uid = uid;
         this.userName = userName;
         this.passWord = passWord;
         this.phone = phone;
@@ -125,8 +125,8 @@ public class User {
         this.signature = signature;
     }
 
-    public User(Integer id, String userName, String passWord) {
-        this.id = id;
+    public User(Integer uid, String userName, String passWord) {
+        this.uid = uid;
         this.userName = userName;
         this.passWord = passWord;
     }

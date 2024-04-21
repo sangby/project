@@ -42,4 +42,23 @@ public interface UserDao {
 
     int insertNewOne(String userName,String password) throws SQLException;
 
+    /**
+     * 修改整个用户信息
+     *
+     * @param user 用户
+     *
+     * @return int
+     */
+
+    int update(User user) throws SQLException;
+
+    /**
+     * 设置封禁通过身份证件
+     *
+     * @param id 身份证件
+     *
+     * @return int
+     */
+
+    int setBlockById(int id);
 }

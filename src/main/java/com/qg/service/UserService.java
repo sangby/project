@@ -61,5 +61,7 @@ public interface UserService {
      * @return 结果＜object＞
      */
 
-    Result <Object> updatePersonInfo(User user);
+    Result <Object> updatePersonInfo(User user) throws SQLException;
+
+    Result <Object> blockUser(int id);
 }

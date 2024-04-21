@@ -80,7 +80,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result<Object> updatePersonInfo(User user) {
-        return null;
+    public Result<Object> updatePersonInfo(User user) throws SQLException {
+
+        UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+        userDaoSingleton.update(user);
+            //不用返回数据
+            return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg());
+
+    }
+
+    @Override
+    public Result<Object> blockUser(int id) {
+        UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+        userDaoSingleton.setBlockById(id);
+
+        return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg());
     }
 }

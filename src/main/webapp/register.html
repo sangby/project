@@ -117,6 +117,9 @@
                           alert('两次输入的密码不一致');
                           return;
                       }
+                      if(register.username==="admin"){
+                          alert("该用户名不可用")
+                      }
                     // axios.get("http://localhost:8080/QG_war_exploded/"+"user/register"+"?username="+this.user.username+"&password="+this.user.password).
                     //     then(response=>{
                     //

@@ -54,6 +54,23 @@ public class UserDaoImpl implements UserDao {
         String sql = "insert into `user`(`username`,`password`) values(?,?)";
         return PoolUtil.update(sql,userName,password);
     }
+    @Override
+    public int update(User user) throws SQLException {
+        String sql = "update `user` set username=?,phone=?,headPhoto=?,signature=? where uid=?";
+
+        return PoolUtil.update(sql,user.getUserName(),user.getPhone(),user.getHeadPhoto(),user.getSignature(),user.getUid());
+    }
+
+    @Override
+    public int setBlockById(int id) {
+        String sql = "update `user` set block=1 where uid=?";
+
+        try {
+            return PoolUtil.update(sql,id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 }
