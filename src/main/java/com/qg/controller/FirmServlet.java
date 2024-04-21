@@ -1,6 +1,7 @@
 package com.qg.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.mysql.cj.Session;
 import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
 import com.qg.po.Firm;
@@ -10,21 +11,51 @@ import com.qg.util.JsonUtil;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/firm/*")
 public class FirmServlet extends BaseServlet{
+    public void joinFirm(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        BufferedReader reader = req.getReader();
+        String firmStr = reader.readLine();
+        Firm firm = JSON.parseObject(firmStr, Firm.class);
+        int fid = firm.getFid();
+
+        //获取session中id
+        int userId = (int) req.getSession(false).getAttribute("uid");
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+        Result<Object> joinFirmResult = firmServiceSingleton.joinFirm(userId,fid);
+
+        JsonUtil.toJson(joinFirmResult, resp);
+
+    }
 
     /**
-     * 创建公司,传入用户名和群组名,向群组请求表插入一条请求
+     * 创建公司
      *
      * @param req  请求
      * @param resp 响应
      */
 
-    public void createFirm(HttpServletRequest req, HttpServletResponse resp){
+    public void createFirm(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        BufferedReader reader = req.getReader();
+        String FirmStr = reader.readLine();
+        Firm firm = JSON.parseObject(FirmStr, Firm.class);
+        String firmName = firm.getFirmName();
+        String introduction = firm.getIntroduction();
+
+        HttpSession session = req.getSession(false);
+
+        int uid = (int) session.getAttribute("uid");
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+        Result<Object> createFimrResult = firmServiceSingleton.createFirm(firmName,introduction,uid);
+
+        JsonUtil.toJson(createFimrResult, resp);
 
     }
 

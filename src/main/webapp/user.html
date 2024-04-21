@@ -31,7 +31,7 @@
                     </el-menu-item-group>
 
                     <el-menu-item-group title="我的群组" >
-                        <el-menu-item index="2-3">我负责的群组</el-menu-item>
+                        <el-menu-item index="2-3" @click="getResponseFirm">我负责的群组</el-menu-item>
                         <el-menu-item index="2-4">
                             <template slot="title">我加入的群组</template>
                         </el-menu-item>
@@ -191,8 +191,84 @@
                                 label="群组人数"
                         >
                         </el-table-column>
+                        <el-table-column label="操作">
+                            <template v-slot="scope">
+                                <el-button type="text" @click="handleJoin(scope.row)">申请加入</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+
+<!--                我负责的群组-->
+                <el-card class="box-card" v-if="isResponseFirm" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
+
+                    <el-table
+                            :data="FirmList"
+                            style="width: 100%">
+                        <el-table-column
+                                prop="headPhoto"
+                                label="头像"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="fid"
+                                label="群组id"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="firmName"
+                                label="群组名称"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="introduction"
+                                label="群组简介"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="memberNum"
+                                label="群组人数"
+                        >
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template v-slot="scope">
+                                <el-button type="text" @click="responseFirmInfo(scope.row.firm)">企业详情</el-button>
+                            </template>
+                            <template v-slot="scope">
+                                <el-button type="text" @click="responseFirmMemberInfo(scope.row.firm)">企业成员</el-button>
+                            </template>
+                            <template v-slot="scope">
+                                <el-button type="text" @click="responseFirmMoneyInfo(scope.row.firm)">企业资金明细</el-button>
+                            </template>
+                        </el-table-column>
 
                     </el-table>
+                </el-card>
+
+<!--                创建群组-->
+                <el-card style="width: 600px" v-if="isCreateFirm">
+                    <el-form label-width="80px" size="small" >
+
+
+
+                        <el-form-item label="群组名">
+                            <el-input v-model="firm.firmName" autocomplete="off"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="群组介绍">
+                            <el-input
+                                    style="width: 480px"
+                                    type="textarea"
+                                    autosize
+                                    v-model="firm.introduction">
+                            </el-input>
+                        </el-form-item>
+
+                    </el-form>
+
+                    <div style="text-align: center">
+                        <el-button type="primary" @click="createFirm">创建群组</el-button>
+                    </div>
                 </el-card>
             </el-main>
 
@@ -253,6 +329,8 @@
             },
             //群组队列
             firmList:[],
+            //群组成员
+            firmMember:[],
             //个人信息表单是否显现
             isPersonInfo:false,
             //创建群组
@@ -276,7 +354,11 @@
             //充值到群组
             isPayToFirm:false,
             //显示搜索群组的列表
-            isFindFirmList:false
+            isFindFirmList:false,
+            //显示负责企业详情
+            isFirmDetail:false,
+            //显示企业成员
+            isFirmMember:false,
         },
         methods:{
             //退出登录
@@ -347,18 +429,113 @@
                     this.isFindFirmList=true;
                 })
             },
+            //获取我负责群组的数据
+            getResponseFirm(){
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/firm/getResponseFirm",
+                }).then(resp=>{
+                    //返回的数据渲染到列表上,并让列表可视化
+                    this.firmList = resp.data.data;
+                    this.isResponseFirm=true;
+                })
+            },
+            handleJoin(rowfirm){
+                this.firm.fid=rowfirm.fid;
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/firm/joinFirm",
+                    data:this.firm
+                }).then(resp=>{
+
+                        if(resp.data.code===200){
+                            this.$message({
+                                message: '申请发送成功',
+                                type: 'success'
+                            })
+                        }else{
+                            this.$message({
+                                message:"申请发送失败,你已在群组中",
+                                type:'error'
+                            })
+                        }
+
+                })
+            },
+            createFirm(){
+              axios({
+                  method:"post",
+                  url:"http://localhost:8080/QG_war_exploded/firm/createFirm",
+                  data:this.firm
+              }).then(resp=>{
+                  if(resp.data.code===200){
+                      this.$message({
+                          message: '创建成功',
+                          type: 'success'
+                      })
+                  }else{
+                      this.$message({
+                          message: '创建失败,群组已存在',
+                          type: 'error'
+                      })
+                  }
+              })
+            },
+
             //上传成功后，显示上传的图片
             handleAvatarSuccess(res){
                 this.user.headPhoto = res;
             },
             //检测到用户被封禁
             handleBan(){
+                this.$message({
+                    message: '您的账号已被封禁，请联系管理员',
+                    type: 'warning'
+                })
+                window.location.href="login.html"
+            },
+            //发送创建数组请求
+            createGroup(){
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/firm/createFirm",
+                    data:this.firm
+                }).then(resp=>{
+
+                        if(resp.data.code===200){
+                            this.$message({
+                                message: '发送请求成功,等待管理员审核',
+                                type: 'success'
+                            })
+                        }
+
+                })
+            },
+            //获取企业详情
+            responseFirmInfo(firm){
+                this.firm=firm;
+                isFirmDetail=true;
+            },
+            //获取企业成员信息
+            responseFirmMemberInfo(firm){
+                axios({
+                    method:"post",
+                    url:"http://localhost/QG_war_exploded/firm/getFirmMemberInfo",
+                    data:firm
+                }).then(resp=>{
+                    this.firmMember=resp.data.data;
+                    this.isFirmMember=true;
+                })
+            },
+            //获取企业资金明细
+            responseFirmMoneyInfo(){
 
             },
+            //上传图片前的验证
+            beforeAvatarUpload(file) {
+            },
             //创建群组
-            createGroup(){
 
-            }
 
 
 

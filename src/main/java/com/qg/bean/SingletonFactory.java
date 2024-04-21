@@ -1,11 +1,13 @@
 package com.qg.bean;
 
 import com.qg.dao.impl.FirmDaoImpl;
+import com.qg.dao.impl.OtherDaoImpl;
 import com.qg.dao.impl.UserDaoImpl;
 import com.qg.service.impl.FirmServiceImpl;
 import com.qg.service.impl.UserServiceImpl;
 import com.qg.util.impl.PoolUtil;
 
+import javax.print.attribute.standard.MediaSize;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -15,11 +17,14 @@ import java.lang.reflect.InvocationTargetException;
  * @author Sangby
  */
 public class SingletonFactory {
+
+
     private static UserServiceImpl userServiceSingleton;
 
     private static UserDaoImpl userDaoSingleton;
     private static FirmServiceImpl firmServiceSingleton;
     private static FirmDaoImpl firmDaoSingleton;
+    private static OtherDaoImpl otherDaoSingleton;
 
     static{
         try{
@@ -32,6 +37,8 @@ public class SingletonFactory {
             firmDaoSingleton = (FirmDaoImpl)getSingleByName(FirmDaoImpl.class);
 
             firmServiceSingleton = (FirmServiceImpl)getSingleByName(FirmServiceImpl.class);
+
+            otherDaoSingleton = (OtherDaoImpl) getSingleByName(OtherDaoImpl.class);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -69,5 +76,8 @@ public class SingletonFactory {
 
     public static FirmDaoImpl getFirmDaoSingleton() {
         return firmDaoSingleton;
+    }
+    public static OtherDaoImpl getOtherDaoSingleton() {
+        return otherDaoSingleton;
     }
 }

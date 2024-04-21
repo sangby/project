@@ -13,6 +13,7 @@ public enum ResultEnum {
     USER_OR_PASSWORD_ERROR(400,"用户名或密码错误"),
     USER_NOT_EXIST(401,"用户不存在"),
     USER_ALREADY_EXIST(402,"用户已存在"),
+    FIRM_ALREADY_EXIST(403,"公司已存在"),
     ERROR(500,"系统错误")
     ;
     private Integer code;

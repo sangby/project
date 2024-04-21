@@ -113,9 +113,11 @@ public abstract class PoolUtil {
      *
      * @param sql   sql
      * @param param 参数
+     * @param sql   sql
+     * @param param 参数
      *
      * @return int
-     *///通用增删改
+     */ //通用增删改
     public static int update(String sql, Object...param) throws SQLException {
 //执行sql,返回改变数据条数
         PreparedStatement ps = params(sql,param);
