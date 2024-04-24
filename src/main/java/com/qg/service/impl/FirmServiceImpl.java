@@ -8,6 +8,7 @@ import com.qg.dao.impl.OtherDaoImpl;
 import com.qg.po.Firm;
 import com.qg.service.FirmService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FirmServiceImpl implements FirmService {
@@ -54,6 +55,16 @@ public class FirmServiceImpl implements FirmService {
         }
     }
 
+    /**
+     * 创造群组
+     *
+     * @param firmName     群组名称
+     * @param introduction 介绍
+     * @param uid          uid
+     *
+     * @return 结果＜object＞
+     */
+
     public Result<Object> createFirm(String firmName,String introduction,int uid){
         FirmDaoImpl firmDaoSingleton = SingletonFactory.getFirmDaoSingleton();
         OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
@@ -71,5 +82,73 @@ public class FirmServiceImpl implements FirmService {
         }
         return null;
 
+    }
+
+    /**
+     * 搜索负责群组
+     *
+     * @param uid uid
+     *
+     * @return 结果＜list＜firm＞＞
+     */
+
+    public Result<List<Firm>> findResponseFirm(int uid){
+        FirmDaoImpl firmDaoSingleton = SingletonFactory.getFirmDaoSingleton();
+        OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
+
+        List<Firm> responseFirmByFid = new ArrayList<>();
+        int[] fid = otherDaoSingleton.findResponseFidByUid(uid);
+        for (int j : fid) {
+            Firm firmByFid = firmDaoSingleton.findFirmByFid(j);
+
+            responseFirmByFid.add(firmByFid);
+        }
+
+        if(!responseFirmByFid.isEmpty()){
+            return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),responseFirmByFid);
+        }
+        return new Result<>( ResultEnum.FIRM_NOT_EXIST.getCode(),ResultEnum.FIRM_NOT_EXIST.getMsg());
+
+    }
+
+    public Result<List<Firm>> findMemberFirm(int uid){
+        FirmDaoImpl firmDaoSingleton = SingletonFactory.getFirmDaoSingleton();
+        OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
+
+        List<Firm> MemberFirmByFid = new ArrayList<>();
+        int[] fid = otherDaoSingleton.findMemberFidByUid(uid);
+        for (int j : fid) {
+            Firm firm = firmDaoSingleton.findFirmByFid(j);
+            MemberFirmByFid.add(firm);
+        }
+
+
+        if(!MemberFirmByFid.isEmpty()){
+            return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),MemberFirmByFid);
+        }
+        return new Result<>( ResultEnum.FIRM_NOT_EXIST.getCode(),ResultEnum.FIRM_NOT_EXIST.getMsg());
+
+    }
+
+
+    /**
+     * 更新群组信息
+     *
+     * @param firm 群组
+     *
+     * @return 结果＜object＞
+     */
+
+    public Result<Object> updateFirmInfo(Firm firm){
+        FirmDaoImpl firmDaoSingleton = SingletonFactory.getFirmDaoSingleton();
+
+         int fid = firmDaoSingleton.findIdByFirmName(firm.getFirmName());
+        //如果查找到id不相同,说明此名称已存在
+        if(fid!=firm.getFid()){
+            return new Result<>(ResultEnum.FIRM_NAME_EXIST.getCode(),ResultEnum.FIRM_NAME_EXIST.getMsg());
+        }
+        firmDaoSingleton.updateFirmInfo(firm);
+
+        return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg());
     }
 }

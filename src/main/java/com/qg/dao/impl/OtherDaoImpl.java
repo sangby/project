@@ -4,6 +4,8 @@ import com.qg.util.impl.PoolUtil;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 描述：还有一些其他奇怪的表的数据交互
@@ -76,7 +78,7 @@ public class OtherDaoImpl {
      */
 
     public int insertNewAdmin(int fid,int uid){
-        String sql = "insert into firmAdmin(fid,uid) values(?,?)";
+        String sql = "insert into adminFirm(fid,uid) values(?,?)";
         try {
             return PoolUtil.update(sql, fid, uid);
         } catch (SQLException e) {
@@ -84,4 +86,63 @@ public class OtherDaoImpl {
         }
         return 0;
     }
+
+    /**
+     * 搜索负责群组fid通过uid
+     *
+     * @param uid uid
+     *
+     * @return int[]
+     */
+
+    public int[] findResponseFidByUid(int uid){
+        String sql ="select * from adminFirm where uid = ?";
+        //看之后能不能限制一下个人所能创建群组的个数
+        List<Integer> fidList = new ArrayList<>();
+        try {
+            ResultSet rs = PoolUtil.query(sql, uid);
+            //如果rs不是空的
+            if(!rs.isClosed()) {
+                while (rs.next()) {
+                    int fid = rs.getInt("fid");
+                    fidList.add(fid);
+                }
+            }
+            return fidList.stream().mapToInt(Integer::intValue).toArray();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * 通过成员表查找群组fid
+     *
+     * @param uid uid
+     *
+     * @return int[]
+     */
+
+    public int[] findMemberFidByUid(int uid){
+        String sql ="select * from memberFirm where uid = ?";
+        //看之后能不能限制一下个人所能创建群组的个数
+        List<Integer> fidList = new ArrayList<>();
+        try {
+            ResultSet rs = PoolUtil.query(sql, uid);
+            //如果rs不是空的
+            if(!rs.isClosed()) {
+                while (rs.next()) {
+                    int fid = rs.getInt("fid");
+                    fidList.add(fid);
+                }
+            }
+            return fidList.stream().mapToInt(Integer::intValue).toArray();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 }
+

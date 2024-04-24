@@ -32,8 +32,8 @@
 
                     <el-menu-item-group title="我的群组" >
                         <el-menu-item index="2-3" @click="getResponseFirm">我负责的群组</el-menu-item>
-                        <el-menu-item index="2-4">
-                            <template slot="title">我加入的群组</template>
+                        <el-menu-item index="2-4" @click="getMemberFirm">
+                            <template slot="title" >我加入的群组</template>
                         </el-menu-item>
                     </el-menu-item-group>
 
@@ -110,10 +110,12 @@
 
                             <el-upload
                                     class="avatar-uploader"
-                                    action="http://localhost:8080/war_QG_exploded/file/upload"
+                                    action="http://localhost:8080/QG_war_exploded/file/uploadAvatar"
                                     :show-file-list="false"
-                                    :on-success="handleAvatarSuccess">
-                                <el-avatar :size="110"  :src="user.headPhoto" class="avatar"></el-avatar>
+                                    :on-success="userHandleAvatarSuccess"
+                                    multiple>
+                                <img  v-model="userImage" :src="userImage" class="avatar">
+<!--                                <el-avatar :size="110"  :src="user.headPhoto" class="avatar"></el-avatar>-->
                                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                             </el-upload>
                         </div>
@@ -122,7 +124,7 @@
                             <el-input v-model="user.uid" autocomplete="off" disabled></el-input>
                         </el-form-item>
                         <el-form-item label="昵称">
-                            <el-input v-model="user.userName" autocomplete="off"></el-input>
+                            <el-input v-model.trim="user.userName" autocomplete="off"></el-input>
                         </el-form-item>
 
 
@@ -131,14 +133,14 @@
                         </el-form-item>
 
                         <el-form-item label="电话">
-                            <el-input v-model="user.phone" autocomplete="off"></el-input>
+                            <el-input v-model.trim="user.phone" autocomplete="off"></el-input>
                         </el-form-item>
                         <el-form-item label="个性签名">
                             <el-input
                                     style="width: 480px"
                                     type="textarea"
                                     autosize
-                                    v-model="user.signature">
+                                    v-model.trim="user.signature">
                             </el-input>
                         </el-form-item>
 
@@ -166,11 +168,13 @@
                     <el-table
                             :data="firmList"
                             style="width: 100%">
-                        <el-table-column
-                                prop="headPhoto"
-                                label="头像"
-                        >
+                        <el-table-column label="头像" prop="headPhoto" style="width: 80px;height: 80px" >
+
+                            <template v-slot="scope" style="width: 80px;height: 80px">
+                                <img :src="scope.row.headPhoto" v-model="scope.row.headPhoto" class="avatar" style="width: 80px;height: 80px">
+                            </template>
                         </el-table-column>
+
                         <el-table-column
                                 prop="fid"
                                 label="群组id"
@@ -203,12 +207,14 @@
                 <el-card class="box-card" v-if="isResponseFirm" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
 
                     <el-table
-                            :data="FirmList"
+                            :data="firmList"
                             style="width: 100%">
-                        <el-table-column
-                                prop="headPhoto"
-                                label="头像"
-                        >
+                        <el-table-column label="头像" prop="headPhoto" >
+
+                            <template v-slot="scope">
+                                <img :src="scope.row.headPhoto" v-model="scope.row.headPhoto" class="avatar" style="width: 80px;height: 80px">
+                            </template>
+
                         </el-table-column>
                         <el-table-column
                                 prop="fid"
@@ -232,19 +238,93 @@
                         </el-table-column>
                         <el-table-column label="操作">
                             <template v-slot="scope">
-                                <el-button type="text" @click="responseFirmInfo(scope.row.firm)">企业详情</el-button>
+                                <el-button type="text" @click="responseFirmInfo(scope.row)">企业详情</el-button>
+                                <el-button type="text" @click="responseFirmMemberInfo(scope.row)">企业成员</el-button>
+                                <el-button type="text" @click="responseFirmMoneyInfo(scope.row)">企业资金明细</el-button>
+                                <el-popconfirm title="确认解散?解散后群组资金将转移回您的账户">
+                                    <el-button type="text" slot="reference">解散群组</el-button>
+                                </el-popconfirm>
+
                             </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+                <!--                        企业详情-->
+                <el-dialog title="企业详情" :visible.sync="isFirmDetail">
+
+                    <el-form v-model="firm" label-width="80px">
+
+                        <el-form-item label="fid" >
+                            <el-input v-model="firm.fid" autocomplete="off" disabled></el-input>
+                        </el-form-item>
+                        <el-form-item label="名称" >
+                            <el-input v-model.trim="firm.firmName" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="简介" >
+                            <el-input v-model.trim="firm.introduction" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="人数"  >
+                            <el-input v-model="firm.memberNum" autocomplete="off" disabled></el-input>
+                        </el-form-item>
+                        <el-form-item label="封禁"  v-show="firm.block">
+                            <span style="color: red">是</span>
+                        </el-form-item>
+
+                        <el-form-item label="是否公开" >
+                            <el-select v-model="firm.open" placeholder="请选择活动区域">
+                                <el-option label="公开" value="ture"></el-option>
+                                <el-option label="不公开" value="false"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="isFirmDetail = false">取 消</el-button>
+
+                        <el-button type="primary" @click="updateFirmInfo">确 定</el-button>
+                    </div>
+                </el-dialog>
+<!--                我加入的群组-->
+                <el-card class="box-card" v-if="isJoinFirm" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
+
+                    <el-table
+                            :data="firmList"
+                            style="width: 100%">
+                        <el-table-column label="头像" prop="headPhoto" >
+
                             <template v-slot="scope">
-                                <el-button type="text" @click="responseFirmMemberInfo(scope.row.firm)">企业成员</el-button>
+                                <img :src="scope.row.headPhoto" v-model="scope.row.headPhoto" class="avatar" style="width: 80px;height: 80px">
                             </template>
+
+                        </el-table-column>
+                        <el-table-column
+                                prop="fid"
+                                label="群组id"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="firmName"
+                                label="群组名称"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="introduction"
+                                label="群组简介"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="memberNum"
+                                label="群组人数"
+                        >
+                        </el-table-column>
+                        <el-table-column label="操作">
                             <template v-slot="scope">
-                                <el-button type="text" @click="responseFirmMoneyInfo(scope.row.firm)">企业资金明细</el-button>
+                                <el-button type="text" @click="otherMember">企业成员</el-button>
+                                <el-button type="text" @click="quit">退出群组</el-button>
                             </template>
                         </el-table-column>
 
                     </el-table>
                 </el-card>
-
 <!--                创建群组-->
                 <el-card style="width: 600px" v-if="isCreateFirm">
                     <el-form label-width="80px" size="small" >
@@ -279,13 +359,19 @@
 <script>
     new Vue({
         el:"#app",
-
+        //加载用户信息
         mounted(){
             const _this = this;
             axios({
                 method:"get",
                 url:"http://localhost:8080/QG_war_exploded/user/getUser",
             }).then(resp=>{
+                // alert("测试是否两个res不一样:resp.data"+resp.data);
+                // alert("测试是否两个res不一样:resp"+resp);
+                // alert("测试是否两个res不一样:resp.data.data"+resp.data.data);
+                // alert("测试是否两个res不一样:resp.data"+resp.data);
+                // alert("测试是否两个res不一样:resp.msg"+resp.msg);
+                // alert("测试是否两个res不一样:resp.code"+resp.code);
                 if(resp.data.code===200){
                     //装载数据
                     _this.user.uid=resp.data.data.uid;
@@ -295,13 +381,23 @@
                     _this.user.headPhoto=resp.data.data.headPhoto;
                     _this.user.signature=resp.data.data.signature;
                     _this.user.phone=resp.data.data.phone;
-                    if(_this.user.block===false) {alert("欢迎来到资金管理系统,"+_this.user.userName);}
+                    //加载头像
+                    _this.userImage = _this.user.headPhoto;
+                    if(_this.user.block===false) {
+                        this.$message({
+                            message: '欢迎您，' + _this.user.userName,
+                            type: 'success'
+                        })
+                    }
                     else{
                         alert("您的账号已被封禁,请联系管理员");
                         window.location.href="http://localhost:8080/QG_war_exploded/login.html";
                     }
-                }else{
-                    alert("初始化失败")
+                }else {
+                    this.$message({
+                        message: resp.data.msg,
+                        type: 'warning'
+                    })
                 }
             }).catch(err=>{
                 alert("您未登录,请先登录");
@@ -331,6 +427,8 @@
             firmList:[],
             //群组成员
             firmMember:[],
+            //用户缓存图片
+            userImage:"",
             //个人信息表单是否显现
             isPersonInfo:false,
             //创建群组
@@ -359,6 +457,7 @@
             isFirmDetail:false,
             //显示企业成员
             isFirmMember:false,
+
         },
         methods:{
             //退出登录
@@ -369,11 +468,21 @@
                     url:"http://localhost:8080/QG_war_exploded/user/exit",
                 }).then(resp=>{
                     //跳转到登录界面
-                    alert("即将退出");
-                    window.location.href = "login.html";
+                    this.$message({
+                        message:"退出成功",
+                        type:"success"
+                    })
+                    setTimeout(()=>{
+                        window.location.href = "login.html";
+                    },400)
+                }).catch(err=>{
+                    this.$message({
+                        message:"服务器或许关闭了",
+                        type:"error"
+                    })
                 })
             },
-            //让表单显现
+            //让个人信息表单显现
             personInfo(){
                 this.userClear();
                 this.isPersonInfo=true;
@@ -395,6 +504,28 @@
             },
             updatePersonInfo(){
               //修改个人信息
+                if(this.user.userName===''||this.user.userName.length>20){
+                    this.$message({
+                        message:"用户名不能为空且不能超过20个字符",
+                        type:"error"
+                    })
+                    return;
+                }
+                if(this.user.phone.length!==11){
+                    this.$message({
+                        message:"手机号要求11位数,差"+(11-this.user.phone.length)+"位",
+                        type:"error"
+                    })
+                    return;
+                }
+                if (this.user.signature.length>255){
+                    this.$message({
+                        message:"签名不能超过255个字符",
+                        type:"error"
+                    })
+                    return;
+                }
+
                 axios({
                     method:"post",
                     url:"http://localhost:8080/QG_war_exploded/user/updatePersonInfo",
@@ -407,14 +538,21 @@
                                 message: '修改成功',
                                 type: 'success'
                             });
-                        }else{
+                        }else if(resp.data.code === 402){
                             this.$message({
                                 showClose: true,
-                                message: '修改失败',
+                                message: '昵称已存在',
                                 type: 'error'
                             });
                         }
+                    }).catch(err=>{
+
+                    this.$message({
+                        showClose: true,
+                        message: '服务器异常',
+                        type: 'error'
                     })
+                })
 
             },
             //搜索群组
@@ -432,14 +570,48 @@
             //获取我负责群组的数据
             getResponseFirm(){
                 axios({
-                    method:"post",
+                    method:"get",
                     url:"http://localhost:8080/QG_war_exploded/firm/getResponseFirm",
-                }).then(resp=>{
+                }).then(resp=> {
+                    // alert(resp.data.code);
+                    // alert(resp.data.data);
+                    // alert(resp.data.msg);
                     //返回的数据渲染到列表上,并让列表可视化
+                    if (resp.data.code === 200) {
                     this.firmList = resp.data.data;
-                    this.isResponseFirm=true;
+                    this.userClear();
+                    setTimeout(() => {
+                        this.isResponseFirm = true;
+                    }, 500)
+                }else if(resp.data.code === 4001){
+                        this.$message({
+                            message:"你还没有创建过群组哦",
+                            type:"warning"
+                        })
+                    }
                 })
             },
+            //获取我加入的群组的数据
+            getMemberFirm(){
+                axios({
+                    method:"get",
+                    url:"http://localhost:8080/QG_war_exploded/firm/getMemberFirm",
+                }).then(resp=>{
+                    //返回的数据渲染到列表上,并让列表可视化
+                    if(resp.data.code===200){
+                    this.firmList = resp.data.data;
+                    this.userClear();
+                    setTimeout(()=>{
+                        this.isJoinFirm=true;
+                    },500)}else if(resp.data.code === 4001){
+                        this.$message({
+                            message:"你还没有创建过群组哦",
+                            type:"warning"
+                        })
+                    }
+                })
+            },
+            //加入群组
             handleJoin(rowfirm){
                 this.firm.fid=rowfirm.fid;
                 axios({
@@ -462,6 +634,7 @@
 
                 })
             },
+            //创建群组
             createFirm(){
               axios({
                   method:"post",
@@ -483,8 +656,24 @@
             },
 
             //上传成功后，显示上传的图片
-            handleAvatarSuccess(res){
-                this.user.headPhoto = res;
+            userHandleAvatarSuccess(res ,file){
+                    // alert("第二次res:"+res.code)
+                    // alert("第一次res:"+res.data)
+                    // this.user.headPhoto = res.data;
+                    // alert("第一次response:"+this.user.headPhoto);
+                    this.userImage = URL.createObjectURL(file.raw);
+                    this.$message.success({
+                        message:"上传成功,请及时点击确定保存头像",
+
+                    })
+                    // //这个东西返回多了个blob:
+                    // alert("第二次URL.createObjectURL:"+this.user.headPhoto);
+                    // this.user.headPhoto = file.url;
+                    // alert("第三次file.url:"+this.user.headPhoto);
+                    // this.user.headPhoto = URL.createObjectURL(file.raw).substring(5);
+                    // alert("第四次URL.createObjectURL:"+this.user.headPhoto);
+                    // alert("file.raw="+file.raw)
+
             },
             //检测到用户被封禁
             handleBan(){
@@ -495,46 +684,104 @@
                 window.location.href="login.html"
             },
             //发送创建数组请求
-            createGroup(){
-                axios({
-                    method:"post",
-                    url:"http://localhost:8080/QG_war_exploded/firm/createFirm",
-                    data:this.firm
-                }).then(resp=>{
+            // createGroup(){
+            //     axios({
+            //         method:"post",
+            //         url:"http://localhost:8080/QG_war_exploded/firm/createFirm",
+            //         data:this.firm
+            //     }).then(resp=>{
+            //
+            //             if(resp.data.code===200){
+            //                 this.$message({
+            //                     message: '发送请求成功,等待管理员审核',
+            //                     type: 'success'
+            //                 })
+            //             }
+            //
+            //     })
+            // },
 
-                        if(resp.data.code===200){
-                            this.$message({
-                                message: '发送请求成功,等待管理员审核',
-                                type: 'success'
-                            })
-                        }
-
-                })
-            },
-            //获取企业详情
+            //获取负责企业详情
             responseFirmInfo(firm){
                 this.firm=firm;
-                isFirmDetail=true;
+                this.isFirmDetail=true;
             },
             //获取企业成员信息
             responseFirmMemberInfo(firm){
+
                 axios({
                     method:"post",
                     url:"http://localhost/QG_war_exploded/firm/getFirmMemberInfo",
                     data:firm
                 }).then(resp=>{
                     this.firmMember=resp.data.data;
+                    userClear();
                     this.isFirmMember=true;
+                })
+            },
+            //修改负责企业信息
+            updateFirmInfo(){
+                if (this.firm.introduction.length===0){
+                    this.$message({
+                        message:"简介不能为空",
+                        type:"error"
+                    })
+                    return;
+                }
+                if(this.firm.firmName===''||this.firm.firmName.length>20){
+                    this.$message({
+                        message:"名称不能为空且不能超过20个字符",
+                        type:"error"
+                    })
+                    return;
+                }
+
+
+                if (this.firm.introduction.length>255){
+                    this.$message({
+                        message:"简介不能超过255个字符",
+                        type:"error"
+                    })
+                    return;
+                }
+
+
+
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/firm/updateFirmInfo",
+                    data:this.firm
+                }).then(resp=>{
+                    if(resp.data.code===200){
+                        this.$message({
+                            message: '修改成功',
+                            type: 'success'
+                        })
+                    }else if(resp.data.code===4002){
+                        this.$message({
+                            message: '群组名已存在',
+                            type: 'error'
+                        })
+                    }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
                 })
             },
             //获取企业资金明细
             responseFirmMoneyInfo(){
 
             },
-            //上传图片前的验证
-            beforeAvatarUpload(file) {
+            otherMember(){
+
             },
-            //创建群组
+            quit(){
+
+            },
+            //上传图片前的验证
+
 
 
 

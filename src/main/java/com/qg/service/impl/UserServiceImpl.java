@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.selectByNameAndPassword(username, password);
         if (user==null){
             //用户名或者密码错误
-            return new Result<>(ResultEnum.USER_OR_PASSWORD_ERROR.getCode(),ResultEnum.USER_ALREADY_EXIST.getMsg(),null);
+            return new Result<>(ResultEnum.USER_OR_PASSWORD_ERROR.getCode(),ResultEnum.USER_OR_PASSWORD_ERROR.getMsg(),null);
         }else{
             //不能把密码返回
             user.setPassWord("");
@@ -83,6 +83,14 @@ public class UserServiceImpl implements UserService {
     public Result<Object> updatePersonInfo(User user) throws SQLException {
 
         UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+        String userName = user.getUserName();
+        int uid = user.getUid();
+        //假如名称已存在且是他人的
+        User u = userDaoSingleton.selectByName(userName);
+        if(u!=null&&uid!=u.getUid()){
+            return new Result<>(ResultEnum.USER_ALREADY_EXIST.getCode(),ResultEnum.USER_ALREADY_EXIST.getMsg());
+        }
+
         userDaoSingleton.update(user);
             //不用返回数据
             return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg());

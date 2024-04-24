@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.mysql.cj.Session;
 import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
+import com.qg.dao.impl.FirmDaoImpl;
 import com.qg.po.Firm;
 import com.qg.service.impl.FirmServiceImpl;
 import com.qg.util.JsonUtil;
@@ -59,17 +60,51 @@ public class FirmServlet extends BaseServlet{
 
     }
 
-
     /**
-     * 用户群组,传入用户名,在用户成员表和用户负责表中查询群组,打包为链表带回
+     * 获取负责群组信息
      *
      * @param req  请求
      * @param resp 响应
      */
 
-    public void firmOfUser(HttpServletRequest req, HttpServletResponse resp){
+    public void getResponseFirm (HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession(false);
+        if (session == null){
+            //如果掉线,直接重定向
+            resp.sendRedirect("/login.html");
+        }
+        Object uid = session.getAttribute("uid");
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+
+        Result<List<Firm>> responseFirmResult = firmServiceSingleton.findResponseFirm((int)uid);
+
+        JsonUtil.toJson(responseFirmResult, resp);
+
+
 
     }
+
+    public void getMemberFirm (HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession(false);
+        if (session == null){
+            //如果掉线,直接重定向
+            resp.sendRedirect("/login.html");
+        }
+        Object uid = session.getAttribute("uid");
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+
+        Result<List<Firm>> responseFirmResult = firmServiceSingleton.findMemberFirm((int)uid);
+
+        JsonUtil.toJson(responseFirmResult, resp);
+
+
+
+    }
+
+
+
 
 
     /**
@@ -92,6 +127,10 @@ public class FirmServlet extends BaseServlet{
         JsonUtil.toJson(findFirmResult, resp);
 
     }
+
+
+
+
 
     /**
      * 注销公司,通过群组在群组负责表中删除一条信息
@@ -125,8 +164,15 @@ public class FirmServlet extends BaseServlet{
      * @param resp 响应
      */
 
-    public  void updateFirmInfo(HttpServletRequest req, HttpServletResponse resp){
+    public  void updateFirmInfo(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        BufferedReader reader = req.getReader();
+        String firmStr = reader.readLine();
+        Firm firm = JSON.parseObject(firmStr, Firm.class);
 
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+        Result<Object> rs = firmServiceSingleton.updateFirmInfo(firm);
+
+        JsonUtil.toJson(rs, resp);
     }
 
     /**

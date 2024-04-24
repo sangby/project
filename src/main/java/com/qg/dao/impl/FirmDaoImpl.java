@@ -2,6 +2,7 @@ package com.qg.dao.impl;
 
 import com.qg.dao.FirmDao;
 import com.qg.po.Firm;
+import com.qg.util.impl.PoHandler;
 import com.qg.util.impl.PoListHandler;
 import com.qg.util.impl.PoolUtil;
 
@@ -62,6 +63,7 @@ public class FirmDaoImpl implements FirmDao {
         try {
             rs = PoolUtil.query(sql, firmName);
             if(!rs.isClosed()){
+                rs.next();
                 return rs.getInt("fid");
             }
 
@@ -87,5 +89,43 @@ public class FirmDaoImpl implements FirmDao {
             throw new RuntimeException(e);
         }
     }
+
+
+    /**
+     * 搜索负责群组信息
+     *
+     * @return 列表<firm>
+     */
+
+    public Firm findFirmByFid(int fid){
+
+        String sql ="select * from firm where fid = ?";
+
+        try {
+            Firm firm = PoolUtil.Tquery(sql, new PoHandler<>(Firm.class), fid);
+            return firm;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 更新群组信息
+     *
+     * @param firm 群组
+     *
+     * @return int
+     */
+
+    public int updateFirmInfo(Firm firm){
+        String sql ="update firm set firmName=? ,introduction=? ,headPhoto=? ,open=? where fid = ?";
+        try {
+            return PoolUtil.update(sql,firm.getFirmName(),firm.getIntroduction(),firm.getHeadPhoto(),firm.getOpen(),firm.getFid());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
 }

@@ -122,7 +122,7 @@ public abstract class PoolUtil {
 //执行sql,返回改变数据条数
         PreparedStatement ps = params(sql,param);
         int update = ps.executeUpdate();
-        ps.close();
+//        ps.close();
         return update;
 
     }
@@ -138,7 +138,7 @@ public abstract class PoolUtil {
     public static ResultSet query(String sql, Object...param) throws SQLException {
         PreparedStatement ps = params(sql, param);
         ResultSet rs = ps.executeQuery();
-        ps.close();
+//        ps.close();
         return rs;
     }
 

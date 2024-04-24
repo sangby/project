@@ -108,10 +108,11 @@
           <el-table
                   :data="firmList"
                   style="width: 100%">
-            <el-table-column
-                    prop="headPhoto"
-                    label="头像"
-            >
+            <el-table-column label="头像" prop="headPhoto" style="width: 80px;height: 80px" >
+
+              <template v-slot="scope" style="width: 80px;height: 80px">
+                <img :src="scope.row.headPhoto" v-model="scope.row.headPhoto" class="avatar" style="width: 80px;height: 80px">
+              </template>
             </el-table-column>
             <el-table-column
                     prop="fid"

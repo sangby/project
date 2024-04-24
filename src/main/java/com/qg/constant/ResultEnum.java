@@ -14,8 +14,10 @@ public enum ResultEnum {
     USER_NOT_EXIST(401,"用户不存在"),
     USER_ALREADY_EXIST(402,"用户已存在"),
     FIRM_ALREADY_EXIST(403,"公司已存在"),
-    ERROR(500,"系统错误")
-    ;
+    USER_LOST(4000,"掉线,重新登录..."),
+    ERROR(500,"系统错误"),
+    FIRM_NOT_EXIST(4001, "没有找到群组"),
+    FIRM_NAME_EXIST(4002, "群组名已存在");
     private Integer code;
     private String msg;
 

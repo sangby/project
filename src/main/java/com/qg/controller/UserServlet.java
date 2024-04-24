@@ -117,8 +117,11 @@ public class UserServlet extends BaseServlet {
     public void getUser(HttpServletRequest req, HttpServletResponse resp){
 
         HttpSession session = req.getSession(false);
+        //如果session被清掉了
+        if (session == null){
+            JsonUtil.toJson(new Result<>(ResultEnum.USER_LOST.getCode(),ResultEnum.USER_LOST.getMsg()),resp);
+        }
         Object userName = session.getAttribute("userName");
-
         UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
         Result<User> initResult = userServiceSingleton.loginInit(userName.toString());
 
@@ -135,6 +138,13 @@ public class UserServlet extends BaseServlet {
         //销毁session
         HttpSession session = req.getSession(false);
         session.invalidate();
+
+        try {
+            //关闭数据库连接
+            PoolUtil.closeMyPool();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -194,6 +204,13 @@ public class UserServlet extends BaseServlet {
         JsonUtil.toJson(updateResult, response);
 
     }
+
+    /**
+     * 登录时检测封禁
+     *
+     * @param request  请求
+     * @param response 响应
+     */
 
     public void block(HttpServletRequest request,HttpServletResponse response) throws IOException {
         BufferedReader reader = request.getReader();

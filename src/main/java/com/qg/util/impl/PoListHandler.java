@@ -69,6 +69,8 @@ public class PoListHandler <T> implements MyHandler<List<T>> {
 
             list.add(obj);
         }
+        rs.close();
+        ps.close();
         return list;
     }
 }

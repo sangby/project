@@ -76,7 +76,7 @@
 
                 <el-form-item>
                     <template>
-                        <el-button type="primary" @click="submitForm()" round>注册</el-button>
+                        <el-button type="primary" @click="submitForm" round>注册</el-button>
                     </template>
                 </el-form-item>
 <!--                        <el-button @click="resetForm(user)" round>重置</el-button>-->
@@ -105,21 +105,48 @@
             methods:{
               submitForm(){
 
-                      if (this.registerUser.username === '' || this.registerUser.password === '') {
-                          alert('账号或密码不能为空');
+                  if (this.registerUser.username === '' || this.registerUser.password === '') {
+                      this.$message({
+                          message: '账号或密码不能为空',
+                          type: 'error'
+                      })
+
+                      return;
+                  }
+
+
+                  if (this.registerUser.username.length > 20 || this.registerUser.password.length > 20) {
+                      this.$message({
+                          message: '账号或密码长度不能超过20',
+                          type: 'error'
+                      })
+
+                      return;
+                  }
+
+                      if(this.registerUser.username==="admin"){
+
+                          this.$message({
+                              message: '该用户已存在',
+                              type: 'error'
+                          })
+                          // setTimeout(()=>{
+                          //
+                          //
+                          // },400)
                           return;
                       }
-                      if (this.registerUser.username.length>20 || this.registerUser.password.length>20){
-                          alert('账号或密码长度不能超过20');
-                          return;
-                      }
+
                       if(this.registerUser.password!==this.registerUser.checkPass){
-                          alert('两次输入的密码不一致');
+                          this.$message({
+                              message: '两次输入的密码不一致',
+                              type: 'error'
+                          })
+
+
                           return;
                       }
-                      if(register.username==="admin"){
-                          alert("该用户名不可用")
-                      }
+
                     // axios.get("http://localhost:8080/QG_war_exploded/"+"user/register"+"?username="+this.user.username+"&password="+this.user.password).
                     //     then(response=>{
                     //
@@ -140,10 +167,19 @@
                       data:this.registerUser,
                   }).then(resp=>{
                       if(resp.data.code===200){
-                          alert('注册成功');
-                          window.location.href="http://localhost:8080/QG_war_exploded/login.html";
+                          this.$message({
+                              message: '恭喜你，注册成功',
+                              type: 'success'
+                          })
+                          setTimeout(()=>{
+                              window.location.href="http://localhost:8080/QG_war_exploded/login.html";
+
+                          },400)
                       }else if (resp.data.code===402){
-                          alert('用户已存在');
+                          this.$message({
+                              message: '用户已存在',
+                              type: 'error'
+                          })
                       }
                   })
               }

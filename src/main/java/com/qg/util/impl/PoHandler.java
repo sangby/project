@@ -54,6 +54,9 @@ public class PoHandler<T> implements MyHandler<T> {
                 //调用setter写入
                 pd.getWriteMethod().invoke(obj,object);
             }
+            rs.close();
+            ps.close();
+
             return obj;
         }
         return null;
