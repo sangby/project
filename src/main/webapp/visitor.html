@@ -92,7 +92,7 @@
       <el-main>
 
         <el-card class="box-card" v-if="isFindFirm" style="width: 500px;margin-left: 30px;margin-top: 20px">
-          <el-form label-width="80px" size="small">
+          <el-form label-width="80px" size="small" @submit.prevent.native>
             <el-form-item label="群组名称">
               <el-input v-model="firm.firmName" placeholder="请输入群组名称"></el-input>
             </el-form-item>
@@ -174,6 +174,21 @@
 
       },
       findFirm(){
+        if(this.firm.firmName.length===0){
+          this.$message({
+            message: '群组名不能为空',
+            type: 'error'
+          })
+          return;
+        }
+        if(this.firm.firmName.length>20){
+          this.$message({
+            showClose: true,
+            message: '没有名字这么长的群组',
+            type: 'error'
+          });
+          return;
+        }
         axios({
           method:"post",
           url:"http://localhost:8080/QG_war_exploded/firm/findFirm",

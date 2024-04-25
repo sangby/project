@@ -5,7 +5,9 @@ import com.qg.constant.Result;
 import com.qg.constant.ResultEnum;
 import com.qg.dao.impl.FirmDaoImpl;
 import com.qg.dao.impl.OtherDaoImpl;
+import com.qg.dao.impl.UserDaoImpl;
 import com.qg.po.Firm;
+import com.qg.po.User;
 import com.qg.service.FirmService;
 
 import java.util.ArrayList;
@@ -71,16 +73,17 @@ public class FirmServiceImpl implements FirmService {
 //判断企业是否已经存在
         int idByFirmName = firmDaoSingleton.findIdByFirmName(firmName);
         if (idByFirmName == -1){
-            //添加
+            //添加到群组里
             firmDaoSingleton.addFirm(firmName,introduction);
-            otherDaoSingleton.insertNewAdmin(idByFirmName,uid);
+//            再查一遍id
+            int fid = firmDaoSingleton.findIdByFirmName(firmName);
+            otherDaoSingleton.insertNewAdmin(fid,uid);
 
             return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg());
         }else{
 
-            new Result<>(ResultEnum.FIRM_ALREADY_EXIST.getCode(),ResultEnum.FIRM_ALREADY_EXIST.getMsg());
+            return new Result<>(ResultEnum.FIRM_ALREADY_EXIST.getCode(),ResultEnum.FIRM_ALREADY_EXIST.getMsg());
         }
-        return null;
 
     }
 
@@ -150,5 +153,35 @@ public class FirmServiceImpl implements FirmService {
         firmDaoSingleton.updateFirmInfo(firm);
 
         return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg());
+    }
+
+    /**
+     * 获得群组成员信息
+     *
+     * @param fid fid
+     *
+     * @return 结果＜list＜user＞＞
+     */
+
+    public Result<List<User>> getFirmMemberInfo(int fid){
+
+        OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
+        UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+
+        List<User> memberInfoByFid = new ArrayList<>();
+
+        int[] uid = otherDaoSingleton.findUidByFid(fid);
+        for (int i : uid) {
+            User user = userDaoSingleton.selectById(i);
+            memberInfoByFid.add(user);
+        }
+        //如果没有成员
+        if(memberInfoByFid.isEmpty()){
+            return new Result<>(ResultEnum.USER_NOT_EXIST.getCode(),ResultEnum.USER_NOT_EXIST.getMsg());
+        }
+
+
+        return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),memberInfoByFid);
+
     }
 }

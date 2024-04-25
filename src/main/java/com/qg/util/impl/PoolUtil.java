@@ -86,6 +86,10 @@ public abstract class PoolUtil {
         pool.closePool();
     }
 
+    public static Connection getConnection() throws SQLException {
+        return pool.getConnection();
+    }
+
 
     /**
      * 处理占位符

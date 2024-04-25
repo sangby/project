@@ -6,6 +6,7 @@ import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
 import com.qg.dao.impl.FirmDaoImpl;
 import com.qg.po.Firm;
+import com.qg.po.User;
 import com.qg.service.impl.FirmServiceImpl;
 import com.qg.util.JsonUtil;
 
@@ -170,9 +171,9 @@ public class FirmServlet extends BaseServlet{
         Firm firm = JSON.parseObject(firmStr, Firm.class);
 
         FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
-        Result<Object> rs = firmServiceSingleton.updateFirmInfo(firm);
+        Result<Object> updateFirmInfoRs = firmServiceSingleton.updateFirmInfo(firm);
 
-        JsonUtil.toJson(rs, resp);
+        JsonUtil.toJson(updateFirmInfoRs, resp);
     }
 
     /**
@@ -186,6 +187,29 @@ public class FirmServlet extends BaseServlet{
 
     }
 
+    /**
+     * 获得群组成员信息
+     *
+     * @param req  请求
+     * @param resp 响应
+     */
 
+    public void getFirmMemberInfo(HttpServletRequest req , HttpServletResponse resp) throws IOException {
+
+        BufferedReader reader = req.getReader();
+        String firmStr = reader.readLine();
+        Firm firm = JSON.parseObject(firmStr, Firm.class);
+
+        int fid = firm.getFid();
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+
+        Result<List<User>> getFirmMemberInfoResult= firmServiceSingleton.getFirmMemberInfo(fid);
+
+        JsonUtil.toJson(getFirmMemberInfoResult, resp);
+
+
+
+    }
 
 }

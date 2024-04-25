@@ -2,9 +2,12 @@ package com.qg.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.qg.bean.PayInfo;
 import com.qg.bean.SingletonFactory;
+import com.qg.bean.UserFund;
 import com.qg.constant.Result;
 import com.qg.constant.ResultEnum;
+import com.qg.dao.impl.FirmDaoImpl;
 import com.qg.dao.impl.UserDaoImpl;
 import com.qg.po.User;
 import com.qg.service.UserService;
@@ -20,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * 描述：用户控制层
@@ -147,38 +151,29 @@ public class UserServlet extends BaseServlet {
         }
     }
 
+
     /**
-     * 初始化普通用户主页面
+     * 获得用户钱信息
      *
-     * @param req  请求
-     * @param resp 响应
+     * @param request  请求
+     * @param response 响应
      */
 
-    public void initCommonIndex(HttpServletRequest req, HttpServletResponse resp){
+    public  void  getUserMoneyInfo(HttpServletRequest request,HttpServletResponse response){
+        HttpSession session = request.getSession();
+        if (session == null){
+            JsonUtil.toJson(new Result<>(ResultEnum.USER_LOST.getCode(),ResultEnum.USER_LOST.getMsg()),response);
+        }
+        Object uid = session.getAttribute("uid");
+
+        UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+        Result<List<UserFund>> moneyInfoResult = userServiceSingleton.getUserMoneyInfo((int)uid);
+
+        JsonUtil.toJson(moneyInfoResult,response);
 
     }
 
-    /**
-     * 初始化管理指数
-     *
-     * @param req  请求
-     * @param resp 响应
-     */
 
-    public void initAdminIndex(HttpServletRequest req, HttpServletResponse resp){
-
-    }
-
-    /**
-     * 初始化来访者指数
-     *
-     * @param req  请求
-     * @param resp 响应
-     */
-
-    public void initVisitorIndex(HttpServletRequest req, HttpServletResponse resp){
-
-    }
 
 
 
@@ -224,16 +219,7 @@ public class UserServlet extends BaseServlet {
         JsonUtil.toJson(blockUserResult, response);
 
     }
-    /**
-     * 基金,传入id,传回其他群组资金,负责群组资金,个人余额,
-     *
-     * @param request  请求
-     * @param response 响应
-     */
 
-    public void fund(HttpServletRequest request,HttpServletResponse response){
-
-    }
 
     /**
      * 转账,传入付款人,和收款人,金额,传回
@@ -246,17 +232,52 @@ public class UserServlet extends BaseServlet {
         //任何对资金有增删的操作都要有同步和事务
     }
 
+    public void recharge(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null){
+            JsonUtil.toJson(new Result<>(ResultEnum.USER_LOST.getCode(),ResultEnum.USER_LOST.getMsg()),response);
+        }
+        Object uid = session.getAttribute("uid");
+        String userName = session.getAttribute("userName").toString();
+
+
+        BufferedReader reader = request.getReader();
+        String str = reader.readLine();
+        PayInfo payInfo = JSON.parseObject(str, PayInfo.class);
+
+        int aid = payInfo.getAid();
+        int money = payInfo.getMoney();
+        String pass =  Md5Util.encrypt(payInfo.getPass());
+
+        UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+        Result<Object> rechargeResult = userServiceSingleton.recharge(userName, aid, (int) uid, money, pass);
+
+        JsonUtil.toJson(rechargeResult,response);
+
+    }
+
     /**
-     * 给钱到群组,传入负责人名称,群组名称,金额,返回
+     * 刷新余额
      *
      * @param request  请求
      * @param response 响应
      */
 
-    public void giveMoneyToFirm(HttpServletRequest request,HttpServletResponse response){
+    public void refreshMoney(HttpServletRequest request,HttpServletResponse response){
+        HttpSession session = request.getSession();
+        if (session == null){
+            JsonUtil.toJson(new Result<>(ResultEnum.USER_LOST.getCode(),ResultEnum.USER_LOST.getMsg()),response);
+        }
+        Object uid = session.getAttribute("uid");
+
+        UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+
+        Result<Integer> integerResult = userServiceSingleton.refreshMoney((int) uid);
+
+        JsonUtil.toJson(integerResult,response);
+
 
     }
-
     /**
      * 群组收款,传入发起群收款的人,群组名称,金额
      *
@@ -264,7 +285,7 @@ public class UserServlet extends BaseServlet {
      * @param response 响应
      */
 
-    public void firmCollection(HttpServletRequest request,HttpServletResponse response){
+    public void firmCollection(HttpServletRequest request,HttpServletResponse response) throws IOException {
 
     }
 
@@ -278,6 +299,7 @@ public class UserServlet extends BaseServlet {
     public void dayToDayAccount(HttpServletRequest request,HttpServletResponse response){
 
     }
+
 
 
 

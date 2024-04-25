@@ -1,7 +1,11 @@
 package com.qg.dao.impl;
 
+import com.qg.bean.SingletonFactory;
+import com.qg.bean.UserFund;
+import com.qg.constant.Result;
 import com.qg.dao.FirmDao;
 import com.qg.po.Firm;
+import com.qg.service.impl.FirmServiceImpl;
 import com.qg.util.impl.PoHandler;
 import com.qg.util.impl.PoListHandler;
 import com.qg.util.impl.PoolUtil;
@@ -62,8 +66,7 @@ public class FirmDaoImpl implements FirmDao {
         ResultSet rs = null;
         try {
             rs = PoolUtil.query(sql, firmName);
-            if(!rs.isClosed()){
-                rs.next();
+            if(rs.next()){
                 return rs.getInt("fid");
             }
 
@@ -126,6 +129,16 @@ public class FirmDaoImpl implements FirmDao {
         }
 
     }
+
+    /**
+     * 获得用户在群组的资金信息
+     *
+     * @param uid uid
+     *
+     * @return 后果列表用户基金
+     */
+
+
 
 
 }

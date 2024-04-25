@@ -11,14 +11,13 @@
 
 
 
-
 </head>
 <body >
 
 <div id="app" style="height: 100%">
     <el-container style="height: 100%">
         <el-aside width="200px" style="height:100%">
-            <el-menu :default-openeds="['1', '3']">
+            <el-menu :default-openeds="['1','2']">
                 <div style="height: 60px;line-height: 60px;text-align: center; color:#FFFFFF">
                     <i class="el-icon-wallet" style="margin-right: 5px"></i>资金管理系统
                 </div>
@@ -26,13 +25,13 @@
                     <template slot="title"><i class="el-icon-message"></i>企业群组</template>
                     <el-menu-item-group>
                         <template slot="title">创建或搜索群组</template>
-                        <el-menu-item index="2-1" @click="userClear();isCreateFirm=true">创建群组</el-menu-item>
-                        <el-menu-item index="2-2" @click="userClear();isFindFirm=true">搜索群组</el-menu-item>
+                        <el-menu-item index="1-1" @click="userClear();isCreateFirm=true">创建群组</el-menu-item>
+                        <el-menu-item index="1-2" @click="userClear();isFindFirm=true">搜索群组</el-menu-item>
                     </el-menu-item-group>
 
                     <el-menu-item-group title="我的群组" >
-                        <el-menu-item index="2-3" @click="getResponseFirm">我负责的群组</el-menu-item>
-                        <el-menu-item index="2-4" @click="getMemberFirm">
+                        <el-menu-item index="1-3" @click="getResponseFirm">我负责的群组</el-menu-item>
+                        <el-menu-item index="1-4" @click="getMemberFirm">
                             <template slot="title" >我加入的群组</template>
                         </el-menu-item>
                     </el-menu-item-group>
@@ -44,24 +43,23 @@
 
                         <el-menu-item-group>
                             <template slot="title">资金明细</template>
-                            <el-menu-item index="1-1">我的资金</el-menu-item>
-                            <el-menu-item index="1-2">我的流水</el-menu-item>
+                            <el-menu-item index="2-1" @click="userClear();isMyFund=true;myMoney();">我的资金</el-menu-item>
+                            <el-menu-item index="2-2" >我的流水</el-menu-item>
                         </el-menu-item-group>
                         <el-menu-item-group title="资金交易">
-                            <el-menu-item index="1-3">发起群收款</el-menu-item>
+                            <el-menu-item index="2-3">发起群收款</el-menu-item>
                         </el-menu-item-group>
-                        <el-submenu index="1-4">
+                        <el-submenu index="2-4">
                             <template slot="title">支付</template>
-                            <el-menu-item index="1-4-1">转账</el-menu-item>
-                            <el-menu-item index="1-4-2">群付款</el-menu-item>
-                            <el-menu-item index="1-4-3">充值资金到群组</el-menu-item>
+                            <el-menu-item index="2-4-1">转账</el-menu-item>
+                            <el-menu-item index="2-4-2">群付款</el-menu-item>
+                            <el-menu-item index="2-4-3" @click="PayToFirm">充值资金到群组</el-menu-item>
 
                         </el-submenu>
                     </el-submenu>
 
 
 
-                </el-submenu>
                 <el-submenu index="3" v-if="false">
                     <template slot="title"><i class="el-icon-setting"></i>导航三</template>
                     <el-menu-item-group>
@@ -152,9 +150,9 @@
                 </el-card>
 <!--搜索群组-->
                 <el-card class="box-card" v-if="isFindFirm" style="width: 500px;margin-left: 30px;margin-top: 20px">
-                    <el-form label-width="80px" size="small">
+                    <el-form label-width="80px" size="small" @submit.prevent.native>
                         <el-form-item label="群组名称">
-                            <el-input v-model="firm.firmName" placeholder="请输入群组名称"></el-input>
+                            <el-input v-model.trim="firm.firmName" placeholder="请输入群组名称"></el-input>
                         </el-form-item>
                         <div style="text-align: center">
                             <el-button type="primary" @click="findFirm" >搜索</el-button>
@@ -166,7 +164,7 @@
                 <el-card class="box-card" v-if="isFindFirmList" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
 
                     <el-table
-                            :data="firmList"
+                            :data="selectFirmList"
                             style="width: 100%">
                         <el-table-column label="头像" prop="headPhoto" style="width: 80px;height: 80px" >
 
@@ -203,7 +201,7 @@
                     </el-table>
                 </el-card>
 
-<!--                我负责的群组-->
+<!--                我负责群组-->
                 <el-card class="box-card" v-if="isResponseFirm" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
 
                     <el-table
@@ -263,6 +261,9 @@
                         <el-form-item label="简介" >
                             <el-input v-model.trim="firm.introduction" autocomplete="off"></el-input>
                         </el-form-item>
+                        <el-form-item label="现有资金" >
+                            {{firm.fund}}
+                        </el-form-item>
                         <el-form-item label="人数"  >
                             <el-input v-model="firm.memberNum" autocomplete="off" disabled></el-input>
                         </el-form-item>
@@ -283,11 +284,54 @@
                         <el-button type="primary" @click="updateFirmInfo">确 定</el-button>
                     </div>
                 </el-dialog>
+
+<!--                企业成员-->
+                <el-dialog title="企业成员" :visible.sync="isFirmMember">
+                    <el-table
+                            :data="firmMember"
+                            style="width: 100%">
+                        <el-table-column label="头像" prop="headPhoto" >
+
+                            <template v-slot="scope">
+                                <img :src="scope.row.headPhoto" v-model="scope.row.headPhoto" class="avatar" style="width: 80px;height: 80px">
+                            </template>
+
+                        </el-table-column>
+                        <el-table-column
+                                prop="uid"
+                                label="用户id"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="userName"
+                                label="用户名称"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="signature"
+                                label="签名"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="phone"
+                                label="电话"
+                        >
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template v-slot="scope">
+                                <el-button type="text" @click="setCollect(scope.row)">设为可群收款</el-button>
+                                <el-button type="text" @click="distribute(scope.row)">分配资金</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+
+                </el-dialog>
 <!--                我加入的群组-->
                 <el-card class="box-card" v-if="isJoinFirm" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
 
                     <el-table
-                            :data="firmList"
+                            :data="memberFirmList"
                             style="width: 100%">
                         <el-table-column label="头像" prop="headPhoto" >
 
@@ -318,8 +362,10 @@
                         </el-table-column>
                         <el-table-column label="操作">
                             <template v-slot="scope">
-                                <el-button type="text" @click="otherMember">企业成员</el-button>
-                                <el-button type="text" @click="quit">退出群组</el-button>
+<!--                                <el-button type="text" @click="otherMember">企业成员</el-button>-->
+                                <el-popconfirm title="确认退出?退出后你将不会带走所分配资金">
+                                    <el-button type="text" slot="reference">退出群组</el-button>
+                                </el-popconfirm>
                             </template>
                         </el-table-column>
 
@@ -332,7 +378,7 @@
 
 
                         <el-form-item label="群组名">
-                            <el-input v-model="firm.firmName" autocomplete="off"></el-input>
+                            <el-input v-model.trim="firm.firmName" autocomplete="off"></el-input>
                         </el-form-item>
 
                         <el-form-item label="群组介绍">
@@ -349,6 +395,86 @@
                     <div style="text-align: center">
                         <el-button type="primary" @click="createFirm">创建群组</el-button>
                     </div>
+                </el-card>
+
+<!--                充值资金到负责群组-->
+                <el-card class="box-card" v-if="isPayToFirm" style="margin-left: 80px; margin-right:80px; margin-top: 50px">
+
+                    <el-table
+                            :data="firmList"
+                            style="width: 100%">
+                        <el-table-column label="头像" prop="headPhoto" >
+
+                            <template v-slot="scope">
+                                <img :src="scope.row.headPhoto" v-model="scope.row.headPhoto" class="avatar" style="width: 80px;height: 80px">
+                            </template>
+
+                        </el-table-column>
+                        <el-table-column
+                                prop="fid"
+                                label="群组id"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="firmName"
+                                label="群组名称"
+                        >
+
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template v-slot="scope">
+                                <el-button type="text" @click="isPayToFirmPop=true;payInfo.aid=scope.row.fid">充值</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+<!--                充值资金支付弹框-->
+                <el-dialog title="充值资金(使用个人账户的钱)" :visible.sync="isPayToFirmPop">
+
+                    <el-form v-model="payInfo" label-width="80px">
+                        <span style="color: red; font-size: 16px"> 温馨提示,最小充值为1,最大为十万</span>
+
+                        <el-form-item label="交易金额" >
+                                <el-input-number v-model.trim="payInfo.money"  :min="1" :max="100000" label="充值金额不能超过十万"></el-input-number>
+                        </el-form-item>
+
+                        <el-form-item label="支付密码"  >
+                            <el-input v-model.trim="payInfo.pass" autocomplete="off" show-password></el-input>
+                        </el-form-item>
+
+
+                    </el-form>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button type="primary" @click="recharge">确 定</el-button>
+                        </div>
+
+
+                </el-dialog>
+<!--                我的资金-->
+                <el-card class="box-card" v-if="isMyFund" style="width: 500px;margin-left: 30px;margin-top: 20px">
+                    <el-form label-width="80px" size="small">
+                        <el-form-item label="个人余额">
+                            {{user.money}}
+                        </el-form-item>
+
+                        <el-table
+                                :data="firmFund"
+                                style="width: 100%">
+
+                            <el-table-column
+                                    prop="fid"
+                                    label="群组id"
+                            >
+                            </el-table-column>
+
+                            <el-table-column label="所分配资金" prop="money" >
+
+
+                            </el-table-column>
+                        </el-table>
+
+                    </el-form>
+
                 </el-card>
             </el-main>
 
@@ -423,12 +549,24 @@
                 block:"",
                 fund:"",
             },
+            //支付信息
+            payInfo:{
+                pid:"",
+                aid:"",
+                money:"",
+                pass:""
+            },
             //群组队列
-            firmList:[],
+            responseFirmList:[],
+            memberFirmList:[],
+            selectFirmList:[],
             //群组成员
             firmMember:[],
+            //我的群组资金
+            firmFund:[],
             //用户缓存图片
             userImage:"",
+
             //个人信息表单是否显现
             isPersonInfo:false,
             //创建群组
@@ -449,14 +587,18 @@
             isPayGroupCollect:false,
             //转账
             isTransferAccount:false,
-            //充值到群组
+            //充值到负责群组
             isPayToFirm:false,
+            //充值去群组的支付弹框
+            isPayToFirmPop:false,
             //显示搜索群组的列表
             isFindFirmList:false,
-            //显示负责企业详情
+            //显示负责群组企业详情
             isFirmDetail:false,
             //显示企业成员
             isFirmMember:false,
+
+
 
         },
         methods:{
@@ -557,18 +699,35 @@
             },
             //搜索群组
             findFirm(){
+                if(this.firm.firmName.length===0){
+                    this.$message({
+                        message: '群组名不能为空',
+                        type: 'error'
+                    })
+                    return;
+                }
+                if(this.firm.firmName.length>20){
+                    this.$message({
+                        showClose: true,
+                        message: '没有名字这么长的群组',
+                        type: 'error'
+                    });
+                    return;
+                }
                 axios({
                     method:"post",
                     url:"http://localhost:8080/QG_war_exploded/firm/findFirm",
                     data:this.firm
                 }).then(resp=>{
                     //返回的数据渲染到列表上,并让列表可视化
-                    this.firmList = resp.data.data;
+                    this.selectFirmList = resp.data.data;
                     this.isFindFirmList=true;
                 })
             },
             //获取我负责群组的数据
             getResponseFirm(){
+
+
                 axios({
                     method:"get",
                     url:"http://localhost:8080/QG_war_exploded/firm/getResponseFirm",
@@ -579,36 +738,48 @@
                     //返回的数据渲染到列表上,并让列表可视化
                     if (resp.data.code === 200) {
                     this.firmList = resp.data.data;
-                    this.userClear();
-                    setTimeout(() => {
-                        this.isResponseFirm = true;
-                    }, 500)
+                        this.userClear();
+                        setTimeout(() => {
+                            this.isResponseFirm = true;
+                        }, 10)
                 }else if(resp.data.code === 4001){
                         this.$message({
                             message:"你还没有创建过群组哦",
                             type:"warning"
                         })
                     }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
                 })
             },
             //获取我加入的群组的数据
             getMemberFirm(){
+
                 axios({
                     method:"get",
                     url:"http://localhost:8080/QG_war_exploded/firm/getMemberFirm",
                 }).then(resp=>{
                     //返回的数据渲染到列表上,并让列表可视化
                     if(resp.data.code===200){
-                    this.firmList = resp.data.data;
-                    this.userClear();
-                    setTimeout(()=>{
-                        this.isJoinFirm=true;
-                    },500)}else if(resp.data.code === 4001){
+                    this.memberFirmList = resp.data.data;
+                        this.userClear();
+                        setTimeout(()=>{
+                            this.isJoinFirm=true;
+                        },10)
+                    }else if(resp.data.code === 4001){
                         this.$message({
-                            message:"你还没有创建过群组哦",
+                            message:"你还没有加入过群组哦",
                             type:"warning"
                         })
                     }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
                 })
             },
             //加入群组
@@ -636,6 +807,35 @@
             },
             //创建群组
             createFirm(){
+                if(this.firm.firmName.length===0){
+                    this.$message({
+                        message: '群组名不能为空',
+                        type: 'error'
+                    })
+                    return;
+                }
+                if(this.firm.introduction.length===0){
+                    this.$message({
+                        message: '群组简介不能为空',
+                        type: 'error'
+                    })
+                    return;
+                }
+                if(this.firm.firmName.length>20){
+                    this.$message({
+                        message: '群组名过长',
+                        type: 'error'
+                    })
+                    return;
+                }
+                if(this.firm.introduction.length>255){
+                    this.$message({
+                        message: '群组介绍过长',
+                        type: 'error'
+                    })
+                    return;
+                }
+
               axios({
                   method:"post",
                   url:"http://localhost:8080/QG_war_exploded/firm/createFirm",
@@ -708,16 +908,28 @@
             },
             //获取企业成员信息
             responseFirmMemberInfo(firm){
-
+                this.isFirmMember=true;
                 axios({
                     method:"post",
-                    url:"http://localhost/QG_war_exploded/firm/getFirmMemberInfo",
+                    url:"http://localhost:8080/QG_war_exploded/firm/getFirmMemberInfo",
                     data:firm
                 }).then(resp=>{
-                    this.firmMember=resp.data.data;
-                    userClear();
-                    this.isFirmMember=true;
+                    if(resp.data.code===200){
+                        this.firmMember=resp.data.data;
+                    }else if (resp.data.code===401){
+                        this.$message({
+                            message: '暂时没有成员捏',
+                            type: 'warning'
+                        })
+                        this.isFirmMember=false;
+                    }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
                 })
+
             },
             //修改负责企业信息
             updateFirmInfo(){
@@ -772,7 +984,138 @@
             },
             //获取企业资金明细
             responseFirmMoneyInfo(){
+                this.$message({
+                    message:"暂未开发",
+                    type:"warning"
+                })
+            },
+            //充值资金到负责群组
+            PayToFirm(){
 
+              //初始化数据
+                axios({
+                    method:"get",
+                    url:"http://localhost:8080/QG_war_exploded/firm/getResponseFirm",
+                }).then(resp=> {
+
+                    if (resp.data.code === 200) {
+                        this.firmList = resp.data.data;
+
+                        this.userClear();
+                        setTimeout(()=>{
+                            this.isPayToFirm = true;
+                        },10)
+
+                    }else if(resp.data.code === 4001){
+                        this.$message({
+                            message:"你还没有创建过群组哦",
+                            type:"warning"
+                        })
+                    }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
+                })
+
+            },
+            //充值
+            recharge(){
+                //检查余额
+                if(this.payInfo.pass.length===0){
+                    this.$message({
+                        message:"密码不能为空",
+                        type:"warning"
+                    })
+                    return;
+                }
+                if(this.user.money<this.payInfo.money){
+                    this.$message({
+                        message:"余额不足",
+                        type:"warning"
+                    })
+                    return;
+                }
+                if(this.payInfo.money<=0){
+                    this.$message({
+                        message:"你想干啥?",
+                        type:"warning"
+                    })
+                    return;
+                }
+                axios({
+                    method:"post",
+                    url:"http://localhost:8080/QG_war_exploded/user/recharge",
+                    data:this.payInfo
+                }).then(resp=>{
+                    this.refreshMoney();
+                    if(resp.data.code === 200){
+                        this.$message({
+                            message:"充值成功,你充了"+resp.data.data+"元",
+                            type:"success"
+                        })
+                    }else if(resp.data.code === 4003){
+                        this.$message({
+                            message:"密码错误",
+                            type:"error"
+                        })
+                    }else{
+                        this.$message({
+                            message:"异常",
+                            type:"error"
+                        })
+                    }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
+                })
+
+
+            },
+            //我的资金,获取各种资金信息
+            myMoney(){
+                axios({
+                    method:"get",
+                    url:"http://localhost:8080/QG_war_exploded/user/getUserMoneyInfo",
+                }).then(resp=>{
+                    if (resp.data.code === 200){
+                        this.firmFund = resp.data.data;
+                    }
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器可能掉线了',
+                        type: 'error'
+                    })
+                })
+            },
+            //更新个人金额
+            refreshMoney(){
+                axios({
+                    method:"get",
+                    url:"http://localhost:8080/QG_war_exploded/user/refreshMoney",
+                }).then(resp=>{
+                    this.user.money = resp.data.data;
+                }).catch(err=>{
+                    this.$message({
+                        message: '服务器应该掉线了',
+                        type: 'error'
+                    })
+                })
+            },
+            setCollect(user){
+                this.$message({
+                    message:"暂未开发",
+                    type:"warning"
+                })
+            },
+            distribute(user){
+                this.$message({
+                    message:"暂未开发",
+                    type:"warning"
+                })
             },
             otherMember(){
 

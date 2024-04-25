@@ -8,6 +8,7 @@ import com.qg.util.impl.UserHandler;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -72,5 +73,41 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /**
+     * 按id选择
+     *
+     * @param id 身份证件
+     *
+     * @return 描述：用户
+     */
+
+    public User selectById(int id){
+        String sql = "select * from user where uid=?";
+        try {
+            return PoolUtil.Tquery(sql,new PoHandler<>(User.class),id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * 选择余额通过身份证件
+     *
+     * @param id 身份证件
+     *
+     * @return int
+     */
+
+    public  int selectMoneyById(int id){
+        String sql = "select money from user where uid = ?";
+        try {
+            ResultSet rs = PoolUtil.query(sql, id);
+            rs.next();
+            return rs.getInt("money");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

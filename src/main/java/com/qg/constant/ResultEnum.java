@@ -17,7 +17,8 @@ public enum ResultEnum {
     USER_LOST(4000,"掉线,重新登录..."),
     ERROR(500,"系统错误"),
     FIRM_NOT_EXIST(4001, "没有找到群组"),
-    FIRM_NAME_EXIST(4002, "群组名已存在");
+    FIRM_NAME_EXIST(4002, "群组名已存在"),
+    PASSWORD_ERROR(4003, "密码错误");
     private Integer code;
     private String msg;
 
