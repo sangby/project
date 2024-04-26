@@ -2,6 +2,7 @@ package com.qg.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.mysql.cj.Session;
+import com.qg.bean.PayInfo;
 import com.qg.bean.SingletonFactory;
 import com.qg.constant.Result;
 import com.qg.dao.impl.FirmDaoImpl;
@@ -101,6 +102,32 @@ public class FirmServlet extends BaseServlet{
         JsonUtil.toJson(responseFirmResult, resp);
 
 
+
+    }
+
+    /**
+     * 分配资金
+     *
+     * @param req  请求
+     * @param resp 响应
+     */
+
+    public void distribute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        BufferedReader reader = req.getReader();
+        String str = reader.readLine();
+        PayInfo payInfo = JSON.parseObject(str, PayInfo.class);
+
+        HttpSession session = req.getSession();
+        Object uid = session.getAttribute("uid");
+
+        int pid = payInfo.getPid();
+        int aid = payInfo.getAid();
+        int money = payInfo.getMoney();
+
+        FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+        Result<Object> distribute = firmServiceSingleton.distribute((int) uid, pid, aid, money);
+
+        JsonUtil.toJson(distribute, resp);
 
     }
 

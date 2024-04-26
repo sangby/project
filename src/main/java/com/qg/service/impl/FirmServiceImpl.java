@@ -12,6 +12,7 @@ import com.qg.service.FirmService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedTransferQueue;
 
 public class FirmServiceImpl implements FirmService {
     private FirmServiceImpl() {
@@ -182,6 +183,115 @@ public class FirmServiceImpl implements FirmService {
 
 
         return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),memberInfoByFid);
+
+    }
+
+    /**
+     * 分配,这笔资金权限转移就不用订单记录了
+     *
+     * @param pid   pid
+     * @param aid   帮助
+     * @param money 余额
+     *
+     * @return 结果＜object＞
+     */
+
+    public Result<Object> distribute(int uid,int pid, int aid ,int money) {
+        OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
+        int distribute;
+
+        synchronized (this) {
+            if (otherDaoSingleton.adminFirmFindMoneyByFidAndUid(pid, uid) < money) {
+                return new Result<>(ResultEnum.MONEY_NOT_ENOUGH.getCode(), ResultEnum.MONEY_NOT_ENOUGH.getMsg());
+            }
+            distribute = otherDaoSingleton.distribute(pid, aid, money);
+        }
+
+        if (distribute == 1) {
+            return new Result<>(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), money);
+        } else {
+            //错误
+            return new Result<>(ResultEnum.ERROR.getCode(), ResultEnum.ERROR.getMsg());
+        }
+
+    }
+    public Result<Object> transfer(String userName,int pid, int aid, int money,int uid,String pass){
+        //同样需要余额校验,密码
+        OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
+        FirmDaoImpl firmDaoSingleton = SingletonFactory.getFirmDaoSingleton();
+        UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+        boolean isAdmin = true;
+//检查收款人是否存在
+        if(userDaoSingleton.selectById(aid)==null){
+            return new Result<>(ResultEnum.USER_NOT_EXIST.getCode(),ResultEnum.USER_NOT_EXIST.getMsg());
+        }
+        //检查付款群组是否存在
+        if(firmDaoSingleton.findFirmByFid(pid)==null){
+            return new Result<>(ResultEnum.FIRM_NOT_EXIST.getCode(),ResultEnum.FIRM_NOT_EXIST.getMsg());
+        }
+
+        int id1 = 0;
+        int id2= 0;
+        //判断是否为管理员
+        int[] memberFidByUid = otherDaoSingleton.findMemberFidByUid(uid);
+        for (int i : memberFidByUid) {
+            if(i == pid ){
+                isAdmin = false;
+            }
+        }
+        //校验密码
+        if (userDaoSingleton.selectByNameAndPassword(userName,pass)!=null){
+            if(isAdmin){
+                //校验余额
+                synchronized (this){
+                    if(otherDaoSingleton.adminFirmFindMoneyByFidAndUid(pid,uid)>=money){
+                        //扣钱生订单
+                        if(otherDaoSingleton.insertIndentAndUpdateAdminMoney(pid,aid,money)==1){
+                            //给群组本身扣钱
+                            otherDaoSingleton.updateFirmFund(pid,money);
+                            //记录订单编号
+                            id1 = otherDaoSingleton.getIndentId(aid, pid, money);
+
+                        }else {
+                            return new Result<>(ResultEnum.ERROR.getCode(), ResultEnum.ERROR.getMsg());
+                        }
+
+                    }else{
+                        return new Result<>(ResultEnum.MONEY_NOT_ENOUGH.getCode(), ResultEnum.MONEY_NOT_ENOUGH.getMsg());
+                    }
+                }
+                //生钱消订单
+                if(otherDaoSingleton.updateIndentAndUserMoney(aid,money,id1)==1){
+                    return new Result<>(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg());
+                }else{
+                    return new Result<>(ResultEnum.ERROR.getCode(), ResultEnum.ERROR.getMsg());
+                }
+
+            }else{
+                synchronized (this){
+                    if(otherDaoSingleton.memberFirmFindMoneyByFidAndUid(pid,uid)>=money){
+                        if(otherDaoSingleton.insertIndentAndUpdateMemberMoney(pid,aid,money,uid)==1){
+                            //给群组本身扣钱
+                            otherDaoSingleton.updateFirmFund(pid,money);
+                            id2 = otherDaoSingleton.getIndentId(aid, pid, money);
+
+
+                        }
+                    }else{
+                        return new Result<>(ResultEnum.MONEY_NOT_ENOUGH.getCode(), ResultEnum.MONEY_NOT_ENOUGH.getMsg());
+                    }
+                }
+                //生钱消订单
+                if(otherDaoSingleton.updateIndentAndUserMoney(aid,money,id2)==1){
+                    return new Result<>(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg());
+                }else{
+                    return new Result<>(ResultEnum.ERROR.getCode(), ResultEnum.ERROR.getMsg());
+                }
+            }
+
+        }else{
+            return new Result<>(ResultEnum.PASSWORD_ERROR.getCode(), ResultEnum.PASSWORD_ERROR.getMsg());
+        }
 
     }
 }

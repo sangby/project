@@ -1,16 +1,15 @@
 package com.qg.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.qg.bean.PayInfo;
 import com.qg.bean.SingletonFactory;
+import com.qg.bean.TransInfo;
 import com.qg.bean.UserFund;
 import com.qg.constant.Result;
 import com.qg.constant.ResultEnum;
-import com.qg.dao.impl.FirmDaoImpl;
-import com.qg.dao.impl.UserDaoImpl;
 import com.qg.po.User;
 import com.qg.service.UserService;
+import com.qg.service.impl.FirmServiceImpl;
 import com.qg.service.impl.UserServiceImpl;
 import com.qg.util.JsonUtil;
 import com.qg.util.Md5Util;
@@ -228,8 +227,38 @@ public class UserServlet extends BaseServlet {
      * @param response 响应
      */
 
-    public void transferMoney(HttpServletRequest request,HttpServletResponse response){
-        //任何对资金有增删的操作都要有同步和事务
+    public void transferAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //获取交易信息
+        BufferedReader reader = request.getReader();
+        String transferStr = reader.readLine();
+        TransInfo transInfo = JSON.parseObject(transferStr, TransInfo.class);
+        PayInfo payInfo = transInfo.getPayInfo();
+        Boolean isPayFirm = transInfo.getIsPayFirm();
+
+        HttpSession session = request.getSession();
+        String userName = session.getAttribute("userName").toString();
+        int uid = (int)session.getAttribute("uid");
+
+        int pid;
+        int aid = payInfo.getAid();
+        String pass = Md5Util.encrypt(payInfo.getPass());
+        int money = payInfo.getMoney();
+        Result<Object> transferResult;
+//是否以群组付款
+        if(isPayFirm){
+
+            pid = payInfo.getPid();
+            FirmServiceImpl firmServiceSingleton = SingletonFactory.getFirmServiceSingleton();
+            transferResult = firmServiceSingleton.transfer(userName, pid, aid, money, uid, pass);
+
+        }else {
+            pid = uid;
+            UserServiceImpl userServiceSingleton = SingletonFactory.getUserServiceSingleton();
+            transferResult = userServiceSingleton.transfer(aid, pid, money, pass, userName);
+        }
+
+        JsonUtil.toJson(transferResult,response);
+
     }
 
     public void recharge(HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -278,6 +307,7 @@ public class UserServlet extends BaseServlet {
 
 
     }
+
     /**
      * 群组收款,传入发起群收款的人,群组名称,金额
      *

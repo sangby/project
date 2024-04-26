@@ -18,7 +18,7 @@ public enum ResultEnum {
     ERROR(500,"系统错误"),
     FIRM_NOT_EXIST(4001, "没有找到群组"),
     FIRM_NAME_EXIST(4002, "群组名已存在"),
-    PASSWORD_ERROR(4003, "密码错误");
+    PASSWORD_ERROR(4003, "密码错误"), MONEY_NOT_ENOUGH(4004, "余额不足");
     private Integer code;
     private String msg;
 

@@ -249,8 +249,9 @@ public class OtherDaoImpl {
         } catch (SQLException e) {
             //回滚
             try {
-                conn.setAutoCommit(true);
                 conn.rollback();
+                conn.setAutoCommit(true);
+
                 return 0;
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -259,6 +260,134 @@ public class OtherDaoImpl {
         //设置事
         return 1;
     }
+
+    /**
+     * 插入订单和更新管理余额,pid是群组,aid是人
+     *
+     * @param pid   pid
+     * @param aid   帮助
+     * @param money 余额
+     *
+     * @return int
+     */
+
+    public int insertIndentAndUpdateAdminMoney(int pid ,int aid,int money){
+        Connection conn = null;
+        try {
+            conn = PoolUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            //创建订单
+            String sql = "insert into indent(pid,aid,money) values(?,?,?)";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1,pid);
+            ps.setInt(2,aid);
+            ps.setInt(3,money);
+
+            ps.executeUpdate();
+
+            //更新用户余额
+            String sql1 = "update adminFirm set `money` = `money` - ? where fid = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setInt(1,money);
+            ps1.setInt(2,aid);
+            ps1.executeUpdate();
+
+            //提交
+            conn.commit();
+            conn.setAutoCommit(true);
+
+
+        } catch (SQLException e) {
+            //回滚
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+
+                return 0;
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        //设置事
+        return 1;
+    }
+
+    /**
+     * 插入订单和更新成员余额,需要把自己id传进来,成员表需要uid,fid才能形成唯一标识
+     *
+     * @param pid   pid
+     * @param aid   帮助
+     * @param money 余额
+     *
+     * @return int
+     */
+
+    public int insertIndentAndUpdateMemberMoney(int pid ,int aid,int money,int uid){
+        Connection conn = null;
+        try {
+            conn = PoolUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            //创建订单
+            String sql = "insert into indent(pid,aid,money) values(?,?,?)";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1,pid);
+            ps.setInt(2,aid);
+            ps.setInt(3,money);
+
+            ps.executeUpdate();
+
+            //更新用户余额
+            String sql1 = "update memberFirm set `money` = `money` - ? where fid = ? and uid = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setInt(1,money);
+            ps1.setInt(2,pid);
+            ps1.setInt(3,uid);
+            ps1.executeUpdate();
+
+            //提交
+            conn.commit();
+            conn.setAutoCommit(true);
+
+
+        } catch (SQLException e) {
+            //回滚
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+
+                return 0;
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        //设置事
+        return 1;
+    }
+
+    /**
+     * 更新(扣钱)群组基金
+     *
+     * @param fid   fid
+     * @param money 余额
+     *
+     * @return int
+     */
+
+    public int updateFirmFund(int fid,int money){
+        String sql = "update firm set `fund` = `fund` - ? where fid = ?";
+        try {
+            return PoolUtil.update(sql,money,fid);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * trans余额和更新订单状态
@@ -300,9 +429,65 @@ public class OtherDaoImpl {
         } catch (SQLException e) {
             //回滚
             try {
-                conn.setAutoCommit(true);
 
                 conn.rollback();
+                conn.setAutoCommit(true);
+
+                return 0;
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        //设置事
+        return 1;
+    }
+
+    /**
+     * 更新订单和用户余额(加钱)
+     *
+     * @param aid   帮助
+     * @param money 余额
+     * @param id    身份证件
+     *
+     * @return int
+     */
+
+    public int updateIndentAndUserMoney(int aid,int money,int id){
+        Connection conn = null;
+        try {
+            conn = PoolUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            //转钱
+            String sql = "update user set money = money + ? where uid = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1,money);
+            ps.setInt(2,aid);
+
+            ps.executeUpdate();
+
+            //更改订单状态
+            String sql1 = "update indent set `state` = '成功' where id = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setInt(1,id);
+            ps1.executeUpdate();
+
+            //提交
+
+            conn.commit();
+            conn.setAutoCommit(true);
+
+
+        } catch (SQLException e) {
+            //回滚
+            try {
+
+                conn.rollback();
+                conn.setAutoCommit(true);
+
+
                 return 0;
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -335,6 +520,16 @@ public class OtherDaoImpl {
     }
 
 
+    /**
+     * 增加群管理员的资金
+     *
+     * @param uid   uid
+     * @param fid   fid
+     * @param money 余额
+     *
+     * @return int
+     */
+
     public int addAdminFund(int uid, int fid, int money) {
         String sql = "update adminFirm set money = money + ? where uid = ? and fid = ?";
         try {
@@ -342,6 +537,62 @@ public class OtherDaoImpl {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 分配,实际上是管理员表分配出钱
+     *
+     * @param fid   fid
+     * @param uid   uid
+     * @param money 余额
+     *
+     * @return int
+     */
+
+    public int distribute(int fid,int uid,int money){
+        Connection conn = null;
+        try {
+            conn = PoolUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            //转权限
+            String sql = "update adminFirm set `money` = `money` - ? where fid = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1,money);
+            ps.setInt(2,fid);
+
+            ps.executeUpdate();
+
+            //收权限
+            String sql1 = "update memberFirm set money = money + ? where uid = ? and fid = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setInt(1,money);
+            ps1.setInt(2,uid);
+            ps1.setInt(3,fid);
+            ps1.executeUpdate();
+
+            //提交
+
+            conn.commit();
+            conn.setAutoCommit(true);
+
+
+        } catch (SQLException e) {
+            //回滚
+            try {
+
+                conn.rollback();
+                conn.setAutoCommit(true);
+
+                return 0;
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        //设置事
+        return 1;
     }
 }
 

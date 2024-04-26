@@ -9,6 +9,7 @@ import com.qg.dao.impl.OtherDaoImpl;
 import com.qg.dao.impl.UserDaoImpl;
 import com.qg.po.User;
 import com.qg.service.UserService;
+import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -182,6 +183,48 @@ public class UserServiceImpl implements UserService {
         int money = userDaoSingleton.selectMoneyById(uid);
 
         return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),money);
+
+    }
+
+    public  Result<Object> transfer(int aid,int pid,int money,String pass,String userName){
+        UserDaoImpl userDaoSingleton = SingletonFactory.getUserDaoSingleton();
+        OtherDaoImpl otherDaoSingleton = SingletonFactory.getOtherDaoSingleton();
+        //检查是不是有这个人
+        if(userDaoSingleton.selectById(aid)==null){
+            return new Result<>(ResultEnum.USER_NOT_EXIST.getCode(),ResultEnum.USER_NOT_EXIST.getMsg());
+        }
+
+        //判断密码是否正确
+        int id = 0;
+
+        if(userDaoSingleton.selectByNameAndPassword(userName,pass)!=null){
+
+            synchronized (this){
+                //检验余额
+                if(userDaoSingleton.selectMoneyById(pid)>money) {
+                    //扣钱生订单
+                    if (userDaoSingleton.insertIndentAndUpdateUserMoney(pid, aid, money)==1){
+                        id = otherDaoSingleton.getIndentId(aid, pid, money);
+                    }else {
+                        return new Result<>(ResultEnum.ERROR.getCode(),ResultEnum.ERROR.getMsg());
+                    }
+                }else{
+                    return new Result<>(ResultEnum.MONEY_NOT_ENOUGH.getCode(),ResultEnum.MONEY_NOT_ENOUGH.getMsg());
+                }
+            }
+            //生钱
+            if(userDaoSingleton.updateIndentAndUserMoney(id,money,aid)==1){
+                return new Result<>(ResultEnum.SUCCESS.getCode(),ResultEnum.SUCCESS.getMsg(),money);
+
+            }else{
+                //异常
+
+                return new Result<>(ResultEnum.ERROR.getCode(),ResultEnum.ERROR.getMsg());
+            }
+
+        }else{
+            return new Result<>(ResultEnum.PASSWORD_ERROR.getCode(),ResultEnum.PASSWORD_ERROR.getMsg());
+        }
 
     }
 }

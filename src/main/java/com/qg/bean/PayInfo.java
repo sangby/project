@@ -8,7 +8,7 @@ package com.qg.bean;
 
 public class PayInfo {
     /**
-     * 收款人
+     * 付款人
      */
     private int pid;
     /**

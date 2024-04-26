@@ -44,15 +44,15 @@
                         <el-menu-item-group>
                             <template slot="title">资金明细</template>
                             <el-menu-item index="2-1" @click="userClear();isMyFund=true;myMoney();">我的资金</el-menu-item>
-                            <el-menu-item index="2-2" >我的流水</el-menu-item>
+                            <el-menu-item index="2-2" @click="myDetailAccount">我的流水</el-menu-item>
                         </el-menu-item-group>
                         <el-menu-item-group title="资金交易">
-                            <el-menu-item index="2-3">发起群收款</el-menu-item>
+                            <el-menu-item index="2-3" @click="groupCollect">发起群收款</el-menu-item>
                         </el-menu-item-group>
                         <el-submenu index="2-4">
                             <template slot="title">支付</template>
-                            <el-menu-item index="2-4-1">转账</el-menu-item>
-                            <el-menu-item index="2-4-2">群付款</el-menu-item>
+                            <el-menu-item index="2-4-1" @click="isTransferAccount=true">转账</el-menu-item>
+                            <el-menu-item index="2-4-2" @click="payGroupCollect">群付款</el-menu-item>
                             <el-menu-item index="2-4-3" @click="PayToFirm">充值资金到群组</el-menu-item>
 
                         </el-submenu>
@@ -240,7 +240,7 @@
                                 <el-button type="text" @click="responseFirmMemberInfo(scope.row)">企业成员</el-button>
                                 <el-button type="text" @click="responseFirmMoneyInfo(scope.row)">企业资金明细</el-button>
                                 <el-popconfirm title="确认解散?解散后群组资金将转移回您的账户">
-                                    <el-button type="text" slot="reference">解散群组</el-button>
+                                    <el-button type="text" slot="reference" @click="quit">解散群组</el-button>
                                 </el-popconfirm>
 
                             </template>
@@ -273,7 +273,7 @@
 
                         <el-form-item label="是否公开" >
                             <el-select v-model="firm.open" placeholder="请选择活动区域">
-                                <el-option label="公开" value="ture"></el-option>
+                                <el-option label="公开" value="true"></el-option>
                                 <el-option label="不公开" value="false"></el-option>
                             </el-select>
                         </el-form-item>
@@ -320,10 +320,30 @@
                         <el-table-column label="操作">
                             <template v-slot="scope">
                                 <el-button type="text" @click="setCollect(scope.row)">设为可群收款</el-button>
-                                <el-button type="text" @click="distribute(scope.row)">分配资金</el-button>
+                                <el-button type="text" @click="distributeInfo(scope.row)">分配资金</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
+                </el-dialog>
+                <!--分配资金弹框-->
+                <el-dialog title="分配企业资金" :visible.sync="isDistribute">
+
+                    <el-form v-model="payInfo" label-width="200px">
+                        <span style="color: red; font-size: 16px"> 温馨提示,最小分配为1,最大为十万</span>
+
+                        <el-form-item label="分配金额" >
+                            <el-input-number v-model.trim="payInfo.money"  :min="1" :max="100000" ></el-input-number>
+                        </el-form-item>
+
+                        <el-form-item label="输入群组id作为确认"  >
+                            <el-input v-model.trim="payInfo.pass" autocomplete="off" style="width: 100%"></el-input>
+                        </el-form-item>
+
+
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="distribute">确 定</el-button>
+                    </div>
 
 
                 </el-dialog>
@@ -364,7 +384,7 @@
                             <template v-slot="scope">
 <!--                                <el-button type="text" @click="otherMember">企业成员</el-button>-->
                                 <el-popconfirm title="确认退出?退出后你将不会带走所分配资金">
-                                    <el-button type="text" slot="reference">退出群组</el-button>
+                                    <el-button type="text" slot="reference" @click="quit">退出群组</el-button>
                                 </el-popconfirm>
                             </template>
                         </el-table-column>
@@ -477,6 +497,42 @@
 
                 </el-card>
             </el-main>
+<!--            转账-->
+            <el-dialog title="转账" :visible.sync="isTransferAccount">
+
+                <el-form v-model="payInfo" label-width="200px">
+                    <span style="color: red; font-size: 16px"> (温馨提示,最小转账金额为一,最大为十万)</span>
+
+
+                    <el-form-item label="选择付款方式" >
+                        <el-button @click="isPayFirm=true">群组</el-button>
+                        <el-button @click="isPayFirm=false">个人</el-button>
+                    </el-form-item>
+<div v-if="isPayFirm" >
+                    <el-form-item label="付款群组id" v-if="isPayFirm" >
+                        <el-input v-if="isPayFirm" v-model.trim="payInfo.pid" autocomplete="off"  style="width: 100%"></el-input>
+                    </el-form-item>
+</div>
+                    <el-form-item label="收款人id"  >
+                        <el-input v-model.trim="payInfo.aid" autocomplete="off"  style="width: 100%"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="交易金额" >
+                        <el-input-number v-model.trim="payInfo.money"  :min="1" :max="100000" ></el-input-number>
+                    </el-form-item>
+
+                    <el-form-item label="支付密码"  >
+                        <el-input v-model.trim="payInfo.pass" autocomplete="off" show-password style="width: 100%"></el-input>
+                    </el-form-item>
+
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="transferAccount">确 定</el-button>
+                </div>
+
+
+            </el-dialog>
 
         </el-container>
     </el-container>
@@ -529,74 +585,83 @@
                 alert("您未登录,请先登录");
             })
         },
-        data:{
-            user:{
-                userName:"",
-                uid:"",
-                phone:"",
-                block:"",
-                money:"",
-                headPhoto:"",
-                signature:""
-            },
-            firm:{
-                fid:"",
-                firmName:"",
-                introduction:"",
-                memberNum:"",
-                headPhoto:"",
-                open:"",
-                block:"",
-                fund:"",
-            },
-            //支付信息
-            payInfo:{
-                pid:"",
-                aid:"",
-                money:"",
-                pass:""
-            },
-            //群组队列
-            responseFirmList:[],
-            memberFirmList:[],
-            selectFirmList:[],
-            //群组成员
-            firmMember:[],
-            //我的群组资金
-            firmFund:[],
-            //用户缓存图片
-            userImage:"",
 
-            //个人信息表单是否显现
-            isPersonInfo:false,
-            //创建群组
-            isCreateFirm:false,
-            //我负责的群组
-            isResponseFirm:false,
-            //我加入的群组
-            isJoinFirm:false,
-            //搜索群组
-            isFindFirm:false,
-            //我的资金
-            isMyFund:false,
-            //我的资金流水
-            isMyDetailAccount:false,
-            //群收款
-            isGroupCollect:false,
-            // 群付款
-            isPayGroupCollect:false,
-            //转账
-            isTransferAccount:false,
-            //充值到负责群组
-            isPayToFirm:false,
-            //充值去群组的支付弹框
-            isPayToFirmPop:false,
-            //显示搜索群组的列表
-            isFindFirmList:false,
-            //显示负责群组企业详情
-            isFirmDetail:false,
-            //显示企业成员
-            isFirmMember:false,
+        data(){
+            return{
+              isPayFirm: false,
+                user:{
+                    userName:"",
+                    uid:"",
+                    phone:"",
+                    block:"",
+                    money:"",
+                    headPhoto:"",
+                    signature:""
+                },
+                firm:{
+                    fid:"",
+                    firmName:"",
+                    introduction:"",
+                    memberNum:"",
+                    headPhoto:"",
+                    open:"",
+                    block:"",
+                    fund:"",
+                },
+                //支付信息
+                payInfo:{
+                    pid:"",
+                    aid:"",
+                    money:"",
+                    pass:""
+                },
+                //群组队列
+                responseFirmList:[],
+                memberFirmList:[],
+                selectFirmList:[],
+                //群组成员
+                firmMember:[],
+                //我的群组资金
+                firmFund:[],
+                //用户缓存图片
+                userImage:"",
+                //临时存储企业群组id
+                tempFid:"",
+
+                //个人信息表单是否显现
+                isPersonInfo:false,
+                //创建群组
+                isCreateFirm:false,
+                //我负责的群组
+                isResponseFirm:false,
+                //我加入的群组
+                isJoinFirm:false,
+                //搜索群组
+                isFindFirm:false,
+                //我的资金
+                isMyFund:false,
+                //我的资金流水
+                isMyDetailAccount:false,
+                //群收款
+                isGroupCollect:false,
+                // 群付款
+                isPayGroupCollect:false,
+                //转账
+                isTransferAccount:false,
+                //充值到负责群组
+                isPayToFirm:false,
+                //分配资金弹框
+                isDistribute:false,
+                //充值去群组的支付弹框
+                isPayToFirmPop:false,
+                //显示搜索群组的列表
+                isFindFirmList:false,
+                //显示负责群组企业详情
+                isFirmDetail:false,
+                //显示企业成员
+                isFirmMember:false,
+
+            }
 
 
 
@@ -908,6 +973,10 @@
             },
             //获取企业成员信息
             responseFirmMemberInfo(firm){
+                //记录现在访问的企业的id
+                this.tempFid = firm.fid;
+                // alert("tempfid:"+this.tempFid);
+
                 this.isFirmMember=true;
                 axios({
                     method:"post",
@@ -1105,25 +1174,201 @@
                     })
                 })
             },
+            //设置企业收款权限
             setCollect(user){
                 this.$message({
                     message:"暂未开发",
                     type:"warning"
                 })
             },
-            distribute(user){
+            //分配企业资金信息准备
+            distributeInfo(user){
+                //弹出弹框
+                this.isDistribute=true;
+                //完善支付信息
+                this.payInfo.aid=user.uid;
+
+                this.payInfo.pid=this.tempFid;
+
+            },
+            //分配
+            distribute(){
+              //校验
+
+                if(this.payInfo.pass==this.payInfo.pid){
+
+                    axios({
+                        method:"post",
+                        url:"http://localhost:8080/QG_war_exploded/firm/distribute",
+                        data:this.payInfo
+                    }).then(resp=>{
+                        if(resp.data.code === 200){
+                            this.$message({
+                                message:"分配成功,你分配了"+resp.data.data+"元",
+                                type:"success"
+                            })
+                        }else if( resp.data.code === 4004){
+                            this.$message({
+                                message:"余额不足",
+                                type:"error"
+                            })
+                        }else{
+
+                            this.$message({
+                                message:"异常",
+                                type:"error"
+                            })
+                        }
+                    }).catch(err=>{
+                            this.$message({
+                                message:"超时,请重新登录",
+                                type:"error"
+                            })
+                    })
+
+                }else{
+                    alert("pass:"+this.payInfo.pass+"pid:"+this.payInfo.pid)
+                    this.$message({
+                        message:"输入的所在群组id错误",
+                        type:"warning"
+                    })
+                }
+            },
+            myDetailAccount(){
                 this.$message({
                     message:"暂未开发",
                     type:"warning"
                 })
             },
+            groupCollect(){
+                this.$message({
+                    message:"暂未开发",
+                    type:"warning"
+                })
+            },
+            //群付款
+            payGroupCollect(){
+                this.$message({
+                    message:"暂未开发",
+                    type:"warning"
+                })
+            },
+            //转账
+            transferAccount(){
+                const _this = this;
+                if(this.payInfo.aid!==""&&this.payInfo.pass!==""){
+                    //如果使用群组付款
+                    if(this.isPayFirm===true){
+                        if(this.payInfo.pid===""||this.payInfo.pid.length>11){
+                            this.$message({
+                                message:"付款群组id格式不对",
+                                type:"error"
+                            })
+                            return;
+                        }
+                    }
+
+                    if(this.payInfo.pid.length<=11||this.payInfo.pass.length<=20){
+                        axios({
+                            method:"post",
+                            url:"http://localhost:8080/QG_war_exploded/user/transferAccount",
+                            data:{
+                                payInfo:_this.payInfo,
+                                isPayFirm:_this.isPayFirm
+                            }
+                        }).then(res=>{
+                            //更新下余额
+                            _this.refreshMoney();
+                            if (res.data.code===200){
+                                this.$message({
+                                    message:"转账成功",
+                                    type:"success"
+                                })
+                            }else if(res.data.code===4003){
+                                 this.$message({
+                                     message:"密码错误",
+                                     type:"error"
+                                 })
+                            }else if(res.data.code===4004){
+                                this.$message({
+                                    message:"余额不足",
+                                    type:"error"
+                                })
+                            }else if(res.data.code===401){
+                                //没有这个收款人
+                                this.$message({
+                                    message:"没有这个收款人",
+                                    type:"error"
+                                })
+                            }else if(res.data.code===4001){
+                                //没有这个付款群组
+                                this.$message({
+                                    message:"没有这个付款群组",
+                                    type:"error"
+                                })
+                            }
+
+
+                            else {
+                                this.$message({
+                                    message:"支付异常",
+                                    type:"error"
+                                })
+                            }
+
+                        }).catch(err=>{
+                            this.$message({
+                                message:"超时,请重新登录",
+                                type:"error"
+                            })
+                        })
+                    }else{
+                        this.$message({
+                            message:"收款人id或密码错误",
+                            type:"warning"
+                        })
+
+                    }
+                }else{
+                    this.$message({
+                        message:"收款人id或密码不可为空",
+                        type:"error"
+                    })
+
+                }
+            },
             otherMember(){
 
             },
             quit(){
-
+                //未开发
+                this.$message({
+                     message:"未开发",
+                    type:"warning"
+                    })
             },
-            //上传图片前的验证
+            //获取付款群组
+            getPayFirm(){
+                this.$axios.get("/api/getPayFirm").then(res=>{
+                    if(res.data.code==200){
+                        this.payFirmList = res.data.data;
+                    }else{
+                        this.$message({
+                            message:res.data.message,
+                            type:"error"
+                        })
+                    }              })
+            },
+            //重新渲染整个弹框
+            handlePayFirmChange(){
+                this.isTransferAccount = false;
+                this.isTransferAccount = true;
+            },
+            //测试函数
+            test(){
+                alert(this.isPayFirm)
+            }
+
 
 
 
