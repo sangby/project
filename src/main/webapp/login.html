@@ -183,6 +183,10 @@ password" placeholder="请输入密码" minlength="1" v-model.trim="loginUser.pa
             },
             //账号解封
             askAdmin(){
+                this.$message({
+                    message:"未开发完",
+                    type:"warning"
+                })
                 window.location.href="recover.html";
             },
             tovisitor(){
